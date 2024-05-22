@@ -132,3 +132,4 @@ dmypy.json
 
 src/data/IEMOCAP_Text_and_Speech
 IEMOCAP_preprocessed
+.vscode
