@@ -15,11 +15,11 @@ class Config(BaseConfig):
 
         self.loss_type = "CrossEntropyLoss"
 
-        self.checkpoint_dir = "checkpoints_latest/ESD"
+        self.checkpoint_dir = "checkpoints_latest/IEMOCAP"
 
         self.transfer_learning = True
         self.model_type = "_4M_SER"
-        self.trainer = "Trainer"
+        self.trainer = "DistilTrainer" # [Trainer, MarginTrainer, DistilTrainer]
 
         self.text_encoder_type = "distilbert"  # [bert, roberta, distilbert]
         self.text_encoder_dim = 768
@@ -40,6 +40,11 @@ class Config(BaseConfig):
         self.name = (
             f"{self.model_type}_{self.text_encoder_type}_{self.audio_encoder_type}"
         )
+        
+        # Teacher-student model
+        self.teacher_checkpoint: str = "checkpoints_latest/IEMOCAP/_4M_SER_distilbert_vggish/20240523-171220/weights/best_acc/checkpoint_0.pth"
 
+        self.transfer_learning = False
+        
         for key, value in kwargs.items():
             setattr(self, key, value)
