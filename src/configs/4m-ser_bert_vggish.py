@@ -15,7 +15,7 @@ class Config(BaseConfig):
 
         self.loss_type = "CrossEntropyLoss"
 
-        self.checkpoint_dir = "checkpoints_latest/ESD"
+        self.checkpoint_dir = "checkpoints_latest/IEMOCAP"
 
         self.transfer_learning = True
         self.model_type = "_4M_SER"

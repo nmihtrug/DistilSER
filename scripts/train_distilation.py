@@ -29,21 +29,21 @@ torch.cuda.manual_seed_all(SEED)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def main(cfg: Config):
+def main(cfg: Config, tea_cfg: Config):
     # Teacher model
     logging.info("Initializing teacher model...")
     try:
-        teacher = getattr(networks, cfg.model_type)(cfg)
+        teacher = getattr(networks, tea_cfg.model_type)(tea_cfg)
         teacher.to(device)
     except AttributeError:
-        raise NotImplementedError("Teacher model {} is not implemented".format(cfg.model_type))
+        raise NotImplementedError("Teacher model {} is not implemented".format(tea_cfg.model_type))
     
     # Load teacher model from checkpoint
     logging.info("Loading teacher model from checkpoint...")
     try:
-        checkpoint = torch.load(cfg.teacher_checkpoint, map_location=torch.device(device))
-        # print(checkpoint.keys())
+        checkpoint = torch.load(stu_cfg.teacher_checkpoint, map_location=torch.device(device))        
         teacher.load_state_dict(checkpoint)
+        
     except Exception:
         raise ValueError("Failed to load teacher model from checkpoint {}".format(cfg.teacher_checkpoint))
     
@@ -146,18 +146,21 @@ def main(cfg: Config):
 
 def arg_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-cfg", "--config", type=str, default="../src/configs/4m-ser_distilbert_vggish.py")
+    parser.add_argument("-stu_cfg", "--student_config", type=str, default="../src/configs/4m-ser_distilbert_vggish.py")
+    parser.add_argument("-tea_cfg", "--teacher_config", type=str, default="../src/configs/4m-ser_bert_vggish.py")
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = arg_parser()
-    cfg: Config = get_options(args.config)
-    if cfg.resume and cfg.cfg_path is not None:
-        resume = cfg.resume
-        resume_path = cfg.resume_path
-        cfg.load(cfg.cfg_path)
-        cfg.resume = resume
-        cfg.resume_path = resume_path
+    stu_cfg: Config = get_options(args.student_config)
+    tea_cfg: Config = get_options(args.teacher_config)
+    
+    if stu_cfg.resume and stu_cfg.cfg_path is not None:
+        resume = stu_cfg.resume
+        resume_path = stu_cfg.resume_path
+        stu_cfg.load(stu_cfg.cfg_path)
+        stu_cfg.resume = resume
+        stu_cfg.resume_path = resume_path
 
-    main(cfg)
+    main(stu_cfg, tea_cfg)

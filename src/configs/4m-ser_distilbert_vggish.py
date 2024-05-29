@@ -42,7 +42,7 @@ class Config(BaseConfig):
         )
         
         # Teacher-student model
-        self.teacher_checkpoint: str = "checkpoints_latest/IEMOCAP/_4M_SER_distilbert_vggish/20240523-171220/weights/best_acc/checkpoint_0.pth"
+        self.teacher_checkpoint: str = "checkpoints_latest/_4M_SER_bert_vggish.pth"
 
         self.transfer_learning = False
         
