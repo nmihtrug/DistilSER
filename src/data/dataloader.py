@@ -59,11 +59,16 @@ class BaseDataset(Dataset):
         self.audio_encoder_type = cfg.audio_encoder_type
 
         self.encode_data = False
-        self.list_encode_audio_data = []
-        self.list_encode_text_data = []
-        if encoder_model is not None:
-            self._encode_data(encoder_model)
-            self.encode_data = True
+
+        with  open(os.path.join(cfg.data_encode, data_mode), "rb") as train_encode_file:
+            train_encode_data = pickle.load(train_encode_file)
+            self.list_encode_audio_data = [x[0] for x in train_encode_data]
+            self.list_encode_text_data = [x[1] for x in train_encode_data]
+        self.encode_data = True
+
+        # if encoder_model is not None:
+        #     self._encode_data(encoder_model)
+        #     self.encode_data = True
 
     def _encode_data(self, encoder):
         logging.info("Encoding data for training...")
@@ -111,14 +116,8 @@ class BaseDataset(Dataset):
         return input_text, input_audio, label
 
     def __paudio__(self, file_path: int) -> torch.Tensor:
-        wav_data, sr = sf.read('../' + file_path, dtype="int16")
+        wav_data, sr = sf.read("../" +file_path, dtype="int16")
         samples = wav_data / 32768.0  # Convert to [-1.0, +1.0]
-        
-        if samples.shape[0] < 16000:
-            samples = np.pad(
-                samples, (0, 16000 - samples.shape[0]), "constant"
-            )
-        
         if (
             self.audio_max_length is not None
             and samples.shape[0] < self.audio_max_length
@@ -140,6 +139,7 @@ class BaseDataset(Dataset):
             samples = np.expand_dims(samples, axis=1)  # num_samples, 1, 96, 64
         elif self.audio_encoder_type != "panns":
             samples = torchaudio.functional.resample(samples, sr, 16000)
+
         return torch.from_numpy(samples.astype(np.float32))
 
     def _text_preprocessing(self, text):

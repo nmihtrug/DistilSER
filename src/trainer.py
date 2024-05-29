@@ -203,7 +203,7 @@ class DistilTrainer(TorchTrainer):
         self,
         cfg: Config,
         teacher: _4M_SER,
-        student: _4M_SER,
+        network: _4M_SER,
         criterion: torch.nn.CrossEntropyLoss = None,
         alpha: float = 0.25,
         T: int = 2,
@@ -212,7 +212,7 @@ class DistilTrainer(TorchTrainer):
         super().__init__(**kwargs)
         self.cfg = cfg
         self.teacher = teacher
-        self.network = student
+        self.network = network
         self.criterion = criterion
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.teacher.to(self.device)
@@ -240,11 +240,11 @@ class DistilTrainer(TorchTrainer):
             
         output = self.network(input_text, input_audio)
         
-        #Soften the student logits by applying softmax first and log() second
+        # Soften the student logits by applying softmax first and log() second
         soft_targets = torch.nn.functional.softmax(teacher_logits[0] / self.T, dim=-1)
         soft_prob = torch.nn.functional.log_softmax(output[0] / self.T, dim=-1)
         
-        # # Calculate the soft targets loss. Scaled by T**2 as suggested by the authors of the paper "Distilling the knowledge in a neural network"
+        # Calculate the soft targets loss. Scaled by T**2 as suggested by the authors of the paper "Distilling the knowledge in a neural network"
         soft_targets_loss = torch.sum(soft_targets * (soft_targets.log() - soft_prob)) / soft_prob.size()[0] * (self.T**2)
         
         label_loss = self.criterion(output, label)

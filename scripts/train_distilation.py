@@ -41,9 +41,8 @@ def main(cfg: Config, tea_cfg: Config):
     # Load teacher model from checkpoint
     logging.info("Loading teacher model from checkpoint...")
     try:
-        checkpoint = torch.load(stu_cfg.teacher_checkpoint, map_location=torch.device(device))        
-        teacher.load_state_dict(checkpoint)
-        
+        teacher_checkpoint = torch.load(cfg.teacher_checkpoint, map_location=torch.device(device))        
+        teacher.load_state_dict(teacher_checkpoint)
     except Exception:
         raise ValueError("Failed to load teacher model from checkpoint {}".format(cfg.teacher_checkpoint))
     
@@ -78,7 +77,7 @@ def main(cfg: Config, tea_cfg: Config):
         trainer = getattr(Trainer, cfg.trainer)(
             cfg=cfg,
             teacher=teacher,
-            student=student,
+            network=student,
             criterion=criterion,
             log_dir=cfg.checkpoint_dir,
         )
@@ -87,8 +86,8 @@ def main(cfg: Config, tea_cfg: Config):
 
     if cfg.transfer_learning:
         logging.info("Transfer learning phase")
-        trainer.student.transfer_learning = True
-        train_ds_encode, test_ds_encode = build_train_test_dataset(cfg, trainer.student)
+        trainer.network.transfer_learning = True
+        train_ds_encode, test_ds_encode = build_train_test_dataset(cfg, trainer.network)
         optimizer_transfer = optims.get_optim(cfg, student)
         trainer.compile(optimizer=optimizer_transfer)
         ckpt_callback_transfer = CheckpointsCallback(
@@ -105,8 +104,8 @@ def main(cfg: Config, tea_cfg: Config):
             callbacks=[ckpt_callback_transfer],
         )
 
-        trainer.student.load_state_dict(torch.load(ckpt_callback_transfer.best_path))
-        trainer.student.transfer_learning = False
+        trainer.network.load_state_dict(torch.load(ckpt_callback_transfer.best_path))
+        trainer.network.transfer_learning = False
         del (
             train_ds_encode,
             test_ds_encode,

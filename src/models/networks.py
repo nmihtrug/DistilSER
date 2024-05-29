@@ -79,9 +79,10 @@ class _4M_SER(nn.Module):
 
         text_embeddings = input_text
         audio_embeddings = input_audio
-        if not self.transfer_learning:
-            text_embeddings = self.text_encoder(input_text).last_hidden_state
-            audio_embeddings = self.audio_encoder(input_audio)
+        
+        # if not self.transfer_learning:
+        #     text_embeddings = self.text_encoder(input_text).last_hidden_state
+        #     audio_embeddings = self.audio_encoder(input_audio)
 
         if self.audio_norm_type == "layer_norm":
             audio_embeddings_norm = self.audio_encoder_layer_norm(audio_embeddings)
@@ -148,25 +149,3 @@ class _4M_SER(nn.Module):
 
     def encode_text(self, input_ids: torch.Tensor):
         return self.text_encoder(input_ids).last_hidden_state
-
-
-# class Distil_4M_SER(nn.Module):
-#     def __init__(
-#         self, 
-#         cfg: Config, 
-#         student: _4M_SER,
-#         teacher: _4M_SER, 
-#         device: str = 'cpu', 
-#     ):
-#         super(Distil_4M_SER, self).__init__()
-#         self.teacher = teacher(cfg, device)
-#         self.student = student(cfg, device)
-
-#     def forward(
-#         self,
-#         input_text: torch.Tensor,
-#         input_audio: torch.Tensor,
-#         output_attentions: bool = False,
-#     ):
-#         return self.student(input_text, input_audio, output_attentions)
-    
