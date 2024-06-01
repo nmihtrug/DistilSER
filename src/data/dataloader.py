@@ -60,15 +60,15 @@ class BaseDataset(Dataset):
 
         self.encode_data = False
 
-        with  open(os.path.join(cfg.data_encode, data_mode), "rb") as train_encode_file:
-            train_encode_data = pickle.load(train_encode_file)
-            self.list_encode_audio_data = [x[0] for x in train_encode_data]
-            self.list_encode_text_data = [x[1] for x in train_encode_data]
-        self.encode_data = True
+        # with  open(os.path.join(cfg.data_encode, data_mode), "rb") as train_encode_file:
+        #     train_encode_data = pickle.load(train_encode_file)
+        #     self.list_encode_audio_data = [x[0] for x in train_encode_data]
+        #     self.list_encode_text_data = [x[1] for x in train_encode_data]
+        # self.encode_data = True
 
-        # if encoder_model is not None:
-        #     self._encode_data(encoder_model)
-        #     self.encode_data = True
+        if encoder_model is not None:
+            self._encode_data(encoder_model)
+            self.encode_data = True
 
     def _encode_data(self, encoder):
         logging.info("Encoding data for training...")
