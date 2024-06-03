@@ -3,6 +3,7 @@ import os
 import shutil
 from abc import ABC, abstractmethod
 from typing import Dict
+from glob import glob
 
 
 class Callback(ABC):
@@ -48,7 +49,7 @@ class CheckpointsCallback(Callback):
         Args:
             checkpoint_dir (str): Path to the directory where checkpoints will be saved.
             save_freq (int, optional): The frequency at which checkpoints will be saved. Defaults to 1000.
-            keep_one_only (bool, optional): Whether to keep only the last checkpoint. Defaults to True.
+            max_to_keep (bool, optional): Number of checkpoints to keep. Defaults to 3.
             save_best_val (bool, optional): Whether to save the best model based on the validation loss. Defaults to False.
             save_all_states (bool, optional): Whether to save all the states of the model. Defaults to False.
         """
@@ -122,11 +123,14 @@ class CheckpointsCallback(Callback):
                     )
                     if self.save_all_states:
                         ckpt_path = trainer.save_all_states(
-                            os.path.join(self.checkpoint_dir, "best_{}".format(k)), 0, 0
+                            os.path.join(self.checkpoint_dir, "best_{}".format(k)),
+                            global_epoch,
+                            global_step,
                         )
                     else:
                         ckpt_path = trainer.save_weights(
-                            os.path.join(self.checkpoint_dir, "best_{}".format(k)), 0
+                            os.path.join(self.checkpoint_dir, "best_{}".format(k)),
+                            global_step,
                         )
                         self.best_path = ckpt_path
                 else:
@@ -143,19 +147,23 @@ class CheckpointsCallback(Callback):
                                 exist_ok=True,
                             )
                             if self.save_all_states:
+                                for f in glob(os.path.join(self.checkpoint_dir, "best_{}".format(k),"*.pt")):
+                                    os.remove(f)
                                 ckpt_path = trainer.save_all_states(
                                     os.path.join(
                                         self.checkpoint_dir, "best_{}".format(k)
                                     ),
-                                    0,
-                                    0,
+                                    global_epoch,
+                                    global_step,
                                 )
                             else:
+                                for f in glob(os.path.join(self.checkpoint_dir, "best_{}".format(k),"*.pth")):
+                                    os.remove(f)
                                 ckpt_path = trainer.save_weights(
                                     os.path.join(
                                         self.checkpoint_dir, "best_{}".format(k)
                                     ),
-                                    0,
+                                    global_step,
                                 )
                     else:
                         if v > self.best_val[k]:
@@ -170,18 +178,22 @@ class CheckpointsCallback(Callback):
                                 exist_ok=True,
                             )
                             if self.save_all_states:
+                                for f in glob(os.path.join(self.checkpoint_dir, "best_{}".format(k),"*.pt")):
+                                    os.remove(f)
                                 ckpt_path = trainer.save_all_states(
                                     os.path.join(
                                         self.checkpoint_dir, "best_{}".format(k)
                                     ),
-                                    0,
-                                    0,
+                                    global_epoch,
+                                    global_step,
                                 )
                             else:
+                                for f in glob(os.path.join(self.checkpoint_dir, "best_{}".format(k),"*.pth")):
+                                    os.remove(f)
                                 ckpt_path = trainer.save_weights(
                                     os.path.join(
                                         self.checkpoint_dir, "best_{}".format(k)
                                     ),
-                                    0,
+                                    global_step,
                                 )
                                 self.best_path = ckpt_path
