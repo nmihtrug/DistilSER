@@ -15,8 +15,10 @@ class Config(BaseConfig):
 
         self.loss_type = "CrossEntropyLoss"
 
-        self.checkpoint_dir = "checkpoints_latest/IEMOCAP"
+        self.checkpoint_dir = "checkpoints_latest/distil_with_loss_v2"
+        self.max_to_keep = 3
 
+        # Model configuration
         self.transfer_learning = True
         self.model_type = "_4M_SER"
         self.trainer = "DistilTrainer" # [Trainer, MarginTrainer, DistilTrainer]
@@ -35,16 +37,25 @@ class Config(BaseConfig):
         self.data_name: str = "IEMOCAP"
         self.data_root: str = "../IEMOCAP_preprocessed"
         self.data_valid: str = "val.pkl"
+        self.data_encode: str = "../IEMOCAP_embeddings"
 
         # Config name
         self.name = (
             f"{self.model_type}_{self.text_encoder_type}_{self.audio_encoder_type}"
         )
+        self.save_all_states: bool = True
         
         # Teacher-student model
-        self.teacher_checkpoint: str = "checkpoints_latest/_4M_SER_bert_vggish.pth"
-
-        self.transfer_learning = False
+        self.teacher_checkpoint: str = "checkpoints_latest/_4M_SER_bert_vggish2/20240602-222457/weights/best_acc/checkpoint_0.pth"
+        self.fusion_loss_type = "MeanSquaredError"
+        self.alpha = 0.1
+        self.T = 2
+        self.reduction = 'mean'
+        
+        # Resume 
+        # self.resume: bool = True
+        # self.resume_path: str = "checkpoint_0_0.pt"
+        
         
         for key, value in kwargs.items():
             setattr(self, key, value)
