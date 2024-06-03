@@ -53,7 +53,7 @@ def main(cfg: Config, tea_cfg: Config):
         student.to(device)
     except AttributeError:
         raise NotImplementedError("Student model {} is not implemented".format(cfg.model_type))
-
+    
     logging.info("Initializing checkpoint directory and dataset...")
     # Preapre the checkpoint directory
     cfg.checkpoint_dir = checkpoint_dir = os.path.join(
@@ -74,11 +74,20 @@ def main(cfg: Config, tea_cfg: Config):
         raise NotImplementedError("Loss {} is not implemented".format(cfg.loss_type))
 
     try:
+        fusion_criterion = getattr(losses, cfg.fusion_loss_type)(cfg)
+        fusion_criterion.to(device)
+    except AttributeError:
+        raise NotImplementedError("Fusion loss {} is not implemented".format(cfg.fusion_loss_type))
+
+    try:
         trainer = getattr(Trainer, cfg.trainer)(
             cfg=cfg,
             teacher=teacher,
             network=student,
             criterion=criterion,
+            fusion_criterion=fusion_criterion,
+            alpha=cfg.alpha,
+            T=cfg.T,
             log_dir=cfg.checkpoint_dir,
         )
     except AttributeError:
@@ -161,5 +170,5 @@ if __name__ == "__main__":
         stu_cfg.load(stu_cfg.cfg_path)
         stu_cfg.resume = resume
         stu_cfg.resume_path = resume_path
-
+    
     main(stu_cfg, tea_cfg)
