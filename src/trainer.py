@@ -29,7 +29,7 @@ class Trainer(TorchTrainer):
         self.optimizer.zero_grad()
 
         # Prepare batch
-        input_text, input_audio, label = batch
+        raw_text, input_text, raw_audio, input_audio, label = batch
 
         # Move inputs to cpu or gpu
         input_audio = input_audio.to(self.device)
@@ -229,16 +229,18 @@ class DistilTrainer(TorchTrainer):
         self.optimizer.zero_grad()
 
         # Prepare batch
-        input_text, input_audio, label = batch
+        raw_text, input_text, raw_audio, input_audio, label = batch
 
         # Move inputs to cpu or gpu
+        raw_audio = raw_audio.to(self.device)
         input_audio = input_audio.to(self.device)
-        label = label.to(self.device)
+        raw_text = raw_text.to(self.device)
         input_text = input_text.to(self.device)
+        label = label.to(self.device)
 
         # Forward pass
         with torch.no_grad():
-            teacher_output = self.teacher(input_text, input_audio)
+            teacher_output = self.teacher(raw_text, raw_audio)
             
         student_output = self.network(input_text, input_audio)
         

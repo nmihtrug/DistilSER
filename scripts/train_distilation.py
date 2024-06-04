@@ -93,8 +93,10 @@ def main(cfg: Config, tea_cfg: Config):
     except AttributeError:
         raise NotImplementedError("Trainer {} is not implemented".format(cfg.trainer))
 
+    
     if cfg.transfer_learning:
         logging.info("Transfer learning phase")
+        trainer.teacher.transfer_learning = False
         trainer.network.transfer_learning = True
         train_ds_encode, test_ds_encode = build_train_test_dataset(cfg, trainer.network)
         optimizer_transfer = optims.get_optim(cfg, student)
@@ -144,11 +146,11 @@ def main(cfg: Config, tea_cfg: Config):
         save_all_states=cfg.save_all_states,
     )
 
+    logging.info("Fine-tuning phase")
+    trainer.compile(optimizer=optimizer, scheduler=lr_scheduler)
     if cfg.resume:
         trainer.load_all_states(cfg.resume_path)
 
-    logging.info("Fine-tuning phase")
-    trainer.compile(optimizer=optimizer, scheduler=lr_scheduler)
     trainer.fit(train_ds, cfg.num_epochs, test_ds, callbacks=[ckpt_callback])
 
 

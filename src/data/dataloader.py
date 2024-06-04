@@ -60,15 +60,18 @@ class BaseDataset(Dataset):
 
         self.encode_data = False
 
-        # with  open(os.path.join(cfg.data_encode, data_mode), "rb") as train_encode_file:
-        #     train_encode_data = pickle.load(train_encode_file)
-        #     self.list_encode_audio_data = [x[0] for x in train_encode_data]
-        #     self.list_encode_text_data = [x[1] for x in train_encode_data]
-        # self.encode_data = True
+        self.list_encode_audio_data = []
+        self.list_encode_text_data = []
+        
+        with  open(os.path.join(cfg.data_encode, data_mode), "rb") as train_encode_file:
+            train_encode_data = pickle.load(train_encode_file)
+            self.list_encode_audio_data = [x[0] for x in train_encode_data]
+            self.list_encode_text_data = [x[1] for x in train_encode_data]
+        self.encode_data = True
 
-        if encoder_model is not None:
-            self._encode_data(encoder_model)
-            self.encode_data = True
+        # if encoder_model is not None:
+        #     self._encode_data(encoder_model)
+        #     self.encode_data = True
 
     def _encode_data(self, encoder):
         logging.info("Encoding data for training...")
@@ -101,19 +104,23 @@ class BaseDataset(Dataset):
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
 
         audio_path, text, label = self.data_list[index]
+        raw_audio = self.__paudio__(audio_path)
         input_audio = (
             self.list_encode_audio_data[index]
             if self.encode_data
-            else self.__paudio__(audio_path)
+            else raw_audio
         )
+        
+        raw_text = self.__ptext__(text)
         input_text = (
             self.list_encode_text_data[index]
             if self.encode_data
-            else self.__ptext__(text)
+            else raw_text
         )
+        
         label = self.__plabel__(label)
 
-        return input_text, input_audio, label
+        return raw_text, input_text, raw_audio, input_audio, label
 
     def __paudio__(self, file_path: int) -> torch.Tensor:
         wav_data, sr = sf.read("../" +file_path, dtype="int16")
