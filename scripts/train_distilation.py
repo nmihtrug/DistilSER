@@ -93,24 +93,24 @@ def main(cfg: Config, tea_cfg: Config):
     except AttributeError:
         raise NotImplementedError("Trainer {} is not implemented".format(cfg.trainer))
 
-    
+    # Teacher take encode data as input
+    trainer.teacher.transfer_learning = True
     if cfg.transfer_learning:
         logging.info("Transfer learning phase")
-        trainer.teacher.transfer_learning = False
         trainer.network.transfer_learning = True
-        train_ds_encode, test_ds_encode = build_train_test_dataset(cfg, trainer.network)
+        train_ds_encode, test_ds_encode = build_train_test_dataset(cfg, trainer.network, trainer.teacher)
         optimizer_transfer = optims.get_optim(cfg, student)
         trainer.compile(optimizer=optimizer_transfer)
         ckpt_callback_transfer = CheckpointsCallback(
             checkpoint_dir=weight_dir,
-            save_freq=cfg.num_transer_epochs * len(train_ds_encode) * 2,
+            save_freq=cfg.num_transfer_epochs * len(train_ds_encode) * 2,
             max_to_keep=cfg.max_to_keep,
             save_best_val=True,
             save_all_states=False,
         )
         trainer.fit(
             train_ds_encode,
-            cfg.num_transer_epochs,
+            cfg.num_transfer_epochs,
             test_ds_encode,
             callbacks=[ckpt_callback_transfer],
         )

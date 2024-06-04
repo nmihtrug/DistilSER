@@ -27,6 +27,7 @@ class BaseDataset(Dataset):
         cfg: Config,
         data_mode: str = "train.pkl",
         encoder_model: Union[_4M_SER, None] = None,
+        teacher_encoder_model: Union[_4M_SER, None] = None,
     ):
         """Dataset for IEMOCAP
 
@@ -44,7 +45,9 @@ class BaseDataset(Dataset):
         elif cfg.text_encoder_type == "roberta":
             self.tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
         elif cfg.text_encoder_type == "distilbert":
-            self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
+            self.tokenizer = DistilBertTokenizer.from_pretrained(
+                "distilbert-base-uncased"
+            )
         else:
             raise NotImplementedError(
                 "Tokenizer {} is not implemented".format(cfg.text_encoder_type)
@@ -62,18 +65,22 @@ class BaseDataset(Dataset):
 
         self.list_encode_audio_data = []
         self.list_encode_text_data = []
-        
-        with  open(os.path.join(cfg.data_encode, data_mode), "rb") as train_encode_file:
-            train_encode_data = pickle.load(train_encode_file)
-            self.list_encode_audio_data = [x[0] for x in train_encode_data]
-            self.list_encode_text_data = [x[1] for x in train_encode_data]
+        self.list_teacher_encode_text_data = []
+        with open(os.path.join(cfg.data_encode, "teacher_text_embeddings_" + data_mode), "rb") as teacher_encode_file:
+            self.list_teacher_encode_text_data = pickle.load(teacher_encode_file)
+
+        with open(os.path.join(cfg.data_encode, data_mode), "rb") as encode_file:
+            encode_data = pickle.load(encode_file)
+            self.list_encode_audio_data = [x[0] for x in encode_data]
+            self.list_encode_text_data = [x[1] for x in encode_data]
         self.encode_data = True
 
         # if encoder_model is not None:
-        #     self._encode_data(encoder_model)
+        #     self._encode_data(encoder_model, teacher_encoder_model)
         #     self.encode_data = True
+        
 
-    def _encode_data(self, encoder):
+    def _encode_data(self, encoder, teacher_encoder):
         logging.info("Encoding data for training...")
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         encoder.train()
@@ -81,6 +88,7 @@ class BaseDataset(Dataset):
         for index in tqdm(range(len(self.data_list))):
             audio_path, text, _ = self.data_list[index]
 
+            # Encode audio
             samples = self.__paudio__(audio_path)
             audio_embedding = (
                 encoder.encode_audio(samples.unsqueeze(0).to(device))
@@ -90,6 +98,7 @@ class BaseDataset(Dataset):
             )
             self.list_encode_audio_data.append(audio_embedding)
 
+            # # Encode text
             input_ids = self.__ptext__(text)
             text_embedding = (
                 encoder.encode_text(input_ids.unsqueeze(0).to(device))
@@ -99,31 +108,40 @@ class BaseDataset(Dataset):
             )
             self.list_encode_text_data.append(text_embedding)
 
+            # Encode teacher text
+            # teacher_text_embedding = (
+            #     teacher_encoder.encode_text(input_ids.unsqueeze(0).to(device))
+            #     .squeeze(0)
+            #     .detach()
+            #     .cpu()
+            # )
+            # self.list_teacher_encode_text_data.append(teacher_text_embedding)
+
     def __getitem__(
         self, index: int
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
 
         audio_path, text, label = self.data_list[index]
-        raw_audio = self.__paudio__(audio_path)
         input_audio = (
             self.list_encode_audio_data[index]
             if self.encode_data
-            else raw_audio
+            else self.__paudio__(audio_path)
         )
-        
-        raw_text = self.__ptext__(text)
+
         input_text = (
             self.list_encode_text_data[index]
             if self.encode_data
-            else raw_text
+            else self.__ptext__(text)
         )
-        
+
+        teacher_input_text = self.list_teacher_encode_text_data[index]
+
         label = self.__plabel__(label)
 
-        return raw_text, input_text, raw_audio, input_audio, label
+        return input_text, teacher_input_text, input_audio, label
 
     def __paudio__(self, file_path: int) -> torch.Tensor:
-        wav_data, sr = sf.read("../" +file_path, dtype="int16")
+        wav_data, sr = sf.read("../" + file_path, dtype="int16")
         samples = wav_data / 32768.0  # Convert to [-1.0, +1.0]
         if (
             self.audio_max_length is not None
@@ -194,7 +212,12 @@ class BaseDataset(Dataset):
     def __len__(self):
         return len(self.data_list)
 
-def build_train_test_dataset(cfg: Config, encoder_model: Union[_4M_SER, None] = None):
+
+def build_train_test_dataset(
+    cfg: Config,
+    encoder_model: Union[_4M_SER, None] = None,
+    teacher_encoder_model: Union[_4M_SER, None] = None,
+):
     DATASET_MAP = {
         "IEMOCAP": BaseDataset,
         "ESD": BaseDataset,
@@ -214,6 +237,7 @@ def build_train_test_dataset(cfg: Config, encoder_model: Union[_4M_SER, None] = 
         cfg,
         data_mode="train.pkl",
         encoder_model=encoder_model,
+        teacher_encoder_model=teacher_encoder_model,
     )
 
     if encoder_model is not None:
@@ -223,6 +247,7 @@ def build_train_test_dataset(cfg: Config, encoder_model: Union[_4M_SER, None] = 
         cfg,
         data_mode=test_set,
         encoder_model=encoder_model,
+        teacher_encoder_model=teacher_encoder_model,
     )
 
     train_dataloader = DataLoader(

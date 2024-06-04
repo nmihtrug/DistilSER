@@ -99,7 +99,7 @@ class Config(BaseConfig):
         # Training settings
         self.trainer = "Trainer"  # Trainer type use for training model [MSER_Trainer, Trainer, MarginTrainer]
         self.num_epochs: int = 100
-        self.num_transer_epochs: int = 50
+        self.num_transfer_epochs: int = 50
         self.checkpoint_dir: str = "checkpoints"
         self.save_all_states: bool = False
         self.save_best_val: bool = True
