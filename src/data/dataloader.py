@@ -66,18 +66,24 @@ class BaseDataset(Dataset):
         self.list_encode_audio_data = []
         self.list_encode_text_data = []
         self.list_teacher_encode_text_data = []
+        self.list_teacher_encode_audio_data = []
+        
         with open(os.path.join(cfg.data_encode, "teacher_text_embeddings_" + data_mode), "rb") as teacher_encode_file:
             self.list_teacher_encode_text_data = pickle.load(teacher_encode_file)
+        
+        with open(os.path.join(cfg.data_encode, "teacher_audio_embeddings_" + data_mode), "rb") as teacher_encode_file:
+            self.list_teacher_encode_audio_data = pickle.load(teacher_encode_file)
+        
 
-        with open(os.path.join(cfg.data_encode, data_mode), "rb") as encode_file:
-            encode_data = pickle.load(encode_file)
-            self.list_encode_audio_data = [x[0] for x in encode_data]
-            self.list_encode_text_data = [x[1] for x in encode_data]
-        self.encode_data = True
+        # with open(os.path.join(cfg.data_encode, data_mode), "rb") as encode_file:
+        #     encode_data = pickle.load(encode_file)
+        #     self.list_encode_audio_data = [x[0] for x in encode_data]
+        #     self.list_encode_text_data = [x[1] for x in encode_data]
+        # self.encode_data = True
 
-        # if encoder_model is not None:
-        #     self._encode_data(encoder_model, teacher_encoder_model)
-        #     self.encode_data = True
+        if encoder_model is not None:
+            self._encode_data(encoder_model, teacher_encoder_model)
+            self.encode_data = True
         
 
     def _encode_data(self, encoder, teacher_encoder):
@@ -98,7 +104,7 @@ class BaseDataset(Dataset):
             )
             self.list_encode_audio_data.append(audio_embedding)
 
-            # # Encode text
+            # Encode text
             input_ids = self.__ptext__(text)
             text_embedding = (
                 encoder.encode_text(input_ids.unsqueeze(0).to(device))
@@ -116,7 +122,16 @@ class BaseDataset(Dataset):
             #     .cpu()
             # )
             # self.list_teacher_encode_text_data.append(teacher_text_embedding)
-
+            
+            # teacher_audio_embedding = (
+            #     teacher_encoder.encode_audio(samples.unsqueeze(0).to(device))
+            #     .squeeze(0)
+            #     .detach()
+            #     .cpu()
+            # )
+            # self.list_teacher_encode_audio_data.append(teacher_audio_embedding)
+        
+        
     def __getitem__(
         self, index: int
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
@@ -135,14 +150,21 @@ class BaseDataset(Dataset):
         )
 
         teacher_input_text = self.list_teacher_encode_text_data[index]
+        teacher_input_audio = self.list_teacher_encode_audio_data[index]
 
         label = self.__plabel__(label)
 
-        return input_text, teacher_input_text, input_audio, label
+        return input_text, teacher_input_text, input_audio, teacher_input_audio, label
 
     def __paudio__(self, file_path: int) -> torch.Tensor:
         wav_data, sr = sf.read("../" + file_path, dtype="int16")
         samples = wav_data / 32768.0  # Convert to [-1.0, +1.0]
+        
+        if samples.shape[0] < 16000:
+            samples = np.pad(
+                samples, (0, 16000 - samples.shape[0]), "constant"
+            )
+        
         if (
             self.audio_max_length is not None
             and samples.shape[0] < self.audio_max_length

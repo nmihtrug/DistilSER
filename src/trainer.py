@@ -105,7 +105,7 @@ class DistilTrainer(TorchTrainer):
         self.optimizer.zero_grad()
 
         # Prepare batch
-        input_text, teacher_input_text, input_audio, label = batch
+        input_text, teacher_input_text, input_audio, teacher_input_audio, label = batch
 
         # Move inputs to cpu or gpu
         input_audio = input_audio.to(self.device)
@@ -115,7 +115,7 @@ class DistilTrainer(TorchTrainer):
 
         # Forward pass
         with torch.no_grad():
-            teacher_output = self.teacher(teacher_input_text, input_audio)
+            teacher_output = self.teacher(teacher_input_text, teacher_input_audio)
             
         student_output = self.network(input_text, input_audio)
         
@@ -148,7 +148,7 @@ class DistilTrainer(TorchTrainer):
     def test_step(self, batch: Dict[str, Tensor]) -> Dict[str, Tensor]:
         self.network.eval()
         # Prepare batch
-        input_text, teacher_input_text, input_audio, label = batch
+        input_text, teacher_input_text, input_audio, teacher_input_audio, label = batch
         
         # Move inputs to cpu or gpu
         input_audio = input_audio.to(self.device)
