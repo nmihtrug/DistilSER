@@ -36,18 +36,16 @@ class BaseDataset(Dataset):
             encoder_model (_4M_SER, optional): if want to pre-encoder dataset
         """
         super(BaseDataset, self).__init__()
-
+        self.data_mode = data_mode
         with open(os.path.join(cfg.data_root, data_mode), "rb") as train_file:
             self.data_list = pickle.load(train_file)
 
         if cfg.text_encoder_type == "bert":
-            self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-        elif cfg.text_encoder_type == "roberta":
             self.tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
         elif cfg.text_encoder_type == "distilbert":
-            self.tokenizer = DistilBertTokenizer.from_pretrained(
-                "distilbert-base-uncased"
-            )
+            self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
+        elif cfg.text_encoder_type == "minibert":
+            self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
         else:
             raise NotImplementedError(
                 "Tokenizer {} is not implemented".format(cfg.text_encoder_type)
@@ -68,11 +66,12 @@ class BaseDataset(Dataset):
         self.list_teacher_encode_text_data = []
         self.list_teacher_encode_audio_data = []
         
-        with open(os.path.join(cfg.data_encode, "teacher_text_embeddings_" + data_mode), "rb") as teacher_encode_file:
-            self.list_teacher_encode_text_data = pickle.load(teacher_encode_file)
-        
-        with open(os.path.join(cfg.data_encode, "teacher_audio_embeddings_" + data_mode), "rb") as teacher_encode_file:
-            self.list_teacher_encode_audio_data = pickle.load(teacher_encode_file)
+        if data_mode != "test.pkl":
+            with open(os.path.join(cfg.data_encode, "teacher_text_embeddings_" + data_mode), "rb") as teacher_encode_file:
+                self.list_teacher_encode_text_data = pickle.load(teacher_encode_file)
+            
+            with open(os.path.join(cfg.data_encode, "teacher_audio_embeddings_" + data_mode), "rb") as teacher_encode_file:
+                self.list_teacher_encode_audio_data = pickle.load(teacher_encode_file)
         
 
         # with open(os.path.join(cfg.data_encode, data_mode), "rb") as encode_file:
@@ -148,13 +147,14 @@ class BaseDataset(Dataset):
             if self.encode_data
             else self.__ptext__(text)
         )
-
-        teacher_input_text = self.list_teacher_encode_text_data[index]
-        teacher_input_audio = self.list_teacher_encode_audio_data[index]
-
         label = self.__plabel__(label)
 
-        return input_text, teacher_input_text, input_audio, teacher_input_audio, label
+        if self.data_mode != "test.pkl":
+            teacher_input_text = self.list_teacher_encode_text_data[index]
+            teacher_input_audio = self.list_teacher_encode_audio_data[index]
+            return input_text, teacher_input_text, input_audio, teacher_input_audio, label
+        
+        return input_text, input_audio, label
 
     def __paudio__(self, file_path: int) -> torch.Tensor:
         wav_data, sr = sf.read("../" + file_path, dtype="int16")

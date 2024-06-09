@@ -96,15 +96,11 @@ def main(cfg: Config):
             ckpt_callback_transfer,
         )
 
-    trainer.network.load_state_dict(torch.load('checkpoints_latest/IEMOCAP/_4M_SER_distilbert_vggish/20240601-004627/weights/best_acc/checkpoint_0.pth'))
-    trainer.network.transfer_learning = False
-
     train_ds, test_ds = build_train_test_dataset(cfg)
     logging.info("Initializing trainer...")
 
     logging.info("Start training...")
-    pytorch_total_params = sum(p.numel() for p in trainer.network.parameters() if p.requires_grad)
-    print(f"Total number of parameters: {pytorch_total_params}")
+    
     optimizer = optims.get_optim(cfg, network)
     lr_scheduler = None
     if cfg.learning_rate_step_size is not None:
@@ -133,7 +129,7 @@ def main(cfg: Config):
 
 def arg_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-cfg", "--config", type=str, default="../src/configs/4m-ser_distilbert_vggish.py")
+    parser.add_argument("-cfg", "--config", type=str, default="../src/configs/4m-ser_minibert_vggish.py")
     return parser.parse_args()
 
 

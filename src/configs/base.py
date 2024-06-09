@@ -173,12 +173,12 @@ class Config(BaseConfig):
         self.num_classes: int = 4
         self.num_attention_head: int = 8
         self.dropout: float = 0.5
-        self.model_type: str = "_4M_SER"  # [_4M_SER, AudioOnly, TextOnly, SERVER]
-        self.text_encoder_type: str = "bert"  # [bert, roberta]
+        self.model_type: str = "_4M_SER"  # [_4M_SER]
+        self.text_encoder_type: str = "bert"  # [bert, distilbert, minibert]
         self.text_encoder_dim: int = 768
         self.text_unfreeze: bool = False
         self.audio_encoder_type: str = (
-            "vggish"  # [vggish, panns, hubert_base, wav2vec2_base, wavlm_base, lstm]
+            "vggish"  # [vggish]
         )
         self.audio_encoder_dim: int = (
             128  # 2048 - panns, 128 - vggish, 768 - hubert_base,wav2vec2_base,wavlm_base, 512 - lstm
