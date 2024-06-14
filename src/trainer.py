@@ -161,7 +161,7 @@ class DistilTrainer(TorchTrainer):
 
         with torch.no_grad():
             # Forward pass
-            teacher_output = self.teacher(teacher_input_text, input_audio)
+            teacher_output = self.teacher(teacher_input_text, teacher_input_audio)
             student_output = self.network(input_text, input_audio)
             
             # Calculate the fusion loss using MSE
