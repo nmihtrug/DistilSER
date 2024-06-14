@@ -118,7 +118,8 @@ class BaseDataset(Dataset):
             )
             self.list_encode_text_data.append(text_embedding)
     
-    def _encode_teacher_data(self,teacher_encoder):
+    
+    def _encode_teacher_data(self, teacher_encoder):
         logging.info("Encoding teacher data for ditsilation...")
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         teacher_encoder.eval()
@@ -172,12 +173,12 @@ class BaseDataset(Dataset):
         teacher_input_text = (
             self.list_teacher_encode_text_data[index]
             if self.teacher_encode_data
-            else None
+            else -1
         )
         teacher_input_audio = (
             self.list_teacher_encode_audio_data[index]
             if self.teacher_encode_data
-            else None
+            else -1
         )
         return input_text, teacher_input_text, input_audio, teacher_input_audio, label
         
