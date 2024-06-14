@@ -15,17 +15,17 @@ class Config(BaseConfig):
 
         self.loss_type = "CrossEntropyLoss"
 
-        self.checkpoint_dir = "checkpoints_latest/distil_with_loss_v2"
+        self.checkpoint_dir = "checkpoints_latest/student"
         self.max_to_keep = 3
 
         # Model configuration
         self.transfer_learning = True
         self.model_type = "_4M_SER"
-        self.trainer = "DistilTrainer" # [Trainer, MarginTrainer, DistilTrainer]
+        self.trainer = "Trainer" # [Trainer, MarginTrainer, DistilTrainer]
 
         self.text_encoder_type = "distilbert"  # [bert, roberta, distilbert]
         self.text_encoder_dim = 768
-        self.text_unfreeze = False
+        self.text_unfreeze = True
 
         self.audio_encoder_type = "vggish"
         self.audio_encoder_dim = 128
@@ -51,11 +51,6 @@ class Config(BaseConfig):
         self.alpha = 0.1
         self.T = 2
         self.reduction = 'mean'
-        
-        # Resume 
-        # self.resume: bool = True
-        # self.resume_path: str = "checkpoint_0_0.pt"
-        
         
         for key, value in kwargs.items():
             setattr(self, key, value)

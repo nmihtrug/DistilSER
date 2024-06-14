@@ -15,7 +15,7 @@ class Config(BaseConfig):
 
         self.loss_type = "CrossEntropyLoss"
 
-        self.checkpoint_dir = "checkpoints_latest/IEMOCAP"
+        self.checkpoint_dir = "checkpoints_latest/teacher"
 
         self.transfer_learning = True
         self.model_type = "_4M_SER"
@@ -23,7 +23,7 @@ class Config(BaseConfig):
 
         self.text_encoder_type = "bert"  # [bert, roberta]
         self.text_encoder_dim = 768
-        self.text_unfreeze = False
+        self.text_unfreeze = True
 
         self.audio_encoder_type = "vggish"
         self.audio_encoder_dim = 128
@@ -35,6 +35,9 @@ class Config(BaseConfig):
         self.data_name: str = "IEMOCAP"
         self.data_root: str = "../IEMOCAP_preprocessed"
         self.data_valid: str = "val.pkl"
+        self.data_encode: str = "../IEMOCAP_embeddings"
+        
+        self.save_all_states = True
 
         # Config name
         self.name = (

@@ -15,7 +15,7 @@ class Config(BaseConfig):
 
         self.loss_type = "CrossEntropyLoss"
 
-        self.checkpoint_dir = "checkpoints_latest/distil_with_loss_v2"
+        self.checkpoint_dir = "checkpoints_latest/student"
         self.max_to_keep = 3
 
         # Model configuration
@@ -51,11 +51,6 @@ class Config(BaseConfig):
         self.alpha = 0.1
         self.T = 2
         self.reduction = 'mean'
-        
-        # Resume 
-        # self.resume: bool = True
-        # self.resume_path: str = "checkpoint_0_0.pt"
-        
         
         for key, value in kwargs.items():
             setattr(self, key, value)
