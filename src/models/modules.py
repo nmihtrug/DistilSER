@@ -28,6 +28,19 @@ def build_miniBert_encoder() -> nn.Module:
     return minibert
 
 
+def build_nanoBert_encoder() -> nn.Module:
+    """A function to build nanoBERT encoder"""    
+    config = DistilBertConfig(hidden_size=256, n_layers=2, n_heads=4, output_hidden_states=True)
+    nanobert = DistilBertModel(config=config)
+    return nanobert
+
+
+def build_microBert_encoder() -> nn.Module:
+    """A function to build microBERT encoder"""    
+    config = DistilBertConfig(hidden_size=128, n_layers=1, n_heads=2, output_hidden_states=True)
+    microbert = DistilBertModel(config=config)
+    return microbert
+
 class VGGish(nn.Module):
     def __init__(self, postprocess):
         super(VGGish, self).__init__()
@@ -80,6 +93,8 @@ def build_text_encoder(type: str = "bert") -> nn.Module:
         "bert": build_bert_encoder,
         "distilbert": build_DistilBert_encoder,
         "minibert": build_miniBert_encoder,
+        "nanobert": build_nanoBert_encoder,
+        "microbert": build_microBert_encoder,
     }
     assert type in encoders.keys(), f"Invalid text encoder type: {type}"
     return encoders[type]()
