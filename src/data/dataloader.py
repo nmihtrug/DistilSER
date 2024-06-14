@@ -44,6 +44,10 @@ class BaseDataset(Dataset):
             self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
         elif cfg.text_encoder_type == "minibert":
             self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
+        elif cfg.text_encoder_type == "nanobert":
+            self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
+        elif cfg.text_encoder_type == "microbert":
+            self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
         else:
             raise NotImplementedError(
                 "Tokenizer {} is not implemented".format(cfg.text_encoder_type)
