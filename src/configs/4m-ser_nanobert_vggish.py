@@ -17,6 +17,7 @@ class Config(BaseConfig):
 
         self.checkpoint_dir = "checkpoints_latest/student"
         self.max_to_keep = 3
+        self.learning_rate = 0.000001
 
         # Model configuration
         self.transfer_learning = True

@@ -14,6 +14,7 @@ class Config(BaseConfig):
         self.num_epochs = 100
 
         self.loss_type = "CrossEntropyLoss"
+        self.learning_rate = 0.000001
 
         self.checkpoint_dir = "checkpoints_latest/teacher"
 
