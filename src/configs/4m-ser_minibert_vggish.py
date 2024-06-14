@@ -46,7 +46,7 @@ class Config(BaseConfig):
         self.save_all_states: bool = True
         
         # Teacher-student model
-        self.teacher_checkpoint: str = "checkpoints_latest/_4M_SER_bert_vggish2/20240602-222457/weights/best_acc/checkpoint_0.pth"
+        self.teacher_checkpoint: str = "checkpoints_latest/_4M_SER_bert_vggish3/20240613-015337/weights/best_acc/checkpoint_206034.pth"
         self.fusion_loss_type = "MeanSquaredError"
         self.alpha = 0.1
         self.T = 2
