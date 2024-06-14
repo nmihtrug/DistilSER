@@ -23,7 +23,7 @@ class Config(BaseConfig):
         self.model_type = "_4M_SER"
         self.trainer = "Trainer" # [Trainer, DistilTrainer]
 
-        self.text_encoder_type = "minibert"  # [bert, distilbert, minibert]
+        self.text_encoder_type = "microbert"  # [bert, distilbert, minibert, nanobert, microbert]
         self.text_encoder_dim = 128
         self.text_unfreeze = True
 
