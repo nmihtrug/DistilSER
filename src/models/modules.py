@@ -23,7 +23,7 @@ def build_DistilBert_encoder() -> nn.Module:
 
 def build_miniBert_encoder() -> nn.Module:
     """A function to build miniBERT encoder"""    
-    config = DistilBertConfig(hidden_size=512, num_hidden_layers=4, n_heads=4, output_hidden_states=True)
+    config = DistilBertConfig(hidden_size=512, n_layers=4, n_heads=8, output_hidden_states=True)
     minibert = DistilBertModel(config=config)
     return minibert
 

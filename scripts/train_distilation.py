@@ -124,7 +124,7 @@ def main(cfg: Config, tea_cfg: Config):
             ckpt_callback_transfer,
         )
 
-    train_ds, test_ds = build_train_test_dataset(cfg)
+    train_ds, test_ds = build_train_test_dataset(cfg, None, trainer.teacher)
     logging.info("Initializing trainer...")
 
     logging.info("Start training...")

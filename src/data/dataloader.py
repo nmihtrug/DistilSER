@@ -10,7 +10,6 @@ import torchaudio
 from torch.utils.data import DataLoader, Dataset
 from transformers import (
     BertTokenizer,
-    RobertaTokenizer,
     DistilBertTokenizer,
 )
 
@@ -36,12 +35,11 @@ class BaseDataset(Dataset):
             encoder_model (_4M_SER, optional): if want to pre-encoder dataset
         """
         super(BaseDataset, self).__init__()
-        self.data_mode = data_mode
         with open(os.path.join(cfg.data_root, data_mode), "rb") as train_file:
             self.data_list = pickle.load(train_file)
 
         if cfg.text_encoder_type == "bert":
-            self.tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
+            self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
         elif cfg.text_encoder_type == "distilbert":
             self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
         elif cfg.text_encoder_type == "minibert":
@@ -59,33 +57,36 @@ class BaseDataset(Dataset):
 
         self.audio_encoder_type = cfg.audio_encoder_type
 
+        self.data_mode = data_mode
+        self.data_encode = cfg.data_encode
+        
         self.encode_data = False
-
-        self.list_encode_audio_data = []
+        self.teacher_encode_data = False
+        
         self.list_encode_text_data = []
+        self.list_encode_audio_data = []
+        
         self.list_teacher_encode_text_data = []
         self.list_teacher_encode_audio_data = []
         
-        if data_mode != "test.pkl":
-            with open(os.path.join(cfg.data_encode, "teacher_text_embeddings_" + data_mode), "rb") as teacher_encode_file:
-                self.list_teacher_encode_text_data = pickle.load(teacher_encode_file)
-            
-            with open(os.path.join(cfg.data_encode, "teacher_audio_embeddings_" + data_mode), "rb") as teacher_encode_file:
-                self.list_teacher_encode_audio_data = pickle.load(teacher_encode_file)
-        
+        if os.path.isfile(os.path.join(self.data_encode, "teacher_embeddings_" + data_mode)):
+            with open(os.path.join(self.data_encode, "teacher_embeddings_" + data_mode), "rb") as teacher_encode_file:
+                teacher_encode_data = pickle.load(teacher_encode_file)
+                self.list_teacher_encode_text_data = teacher_encode_data[0]
+                self.list_teacher_encode_audio_data = teacher_encode_data[1]
+                
+            self.teacher_encode_data = True
 
-        # with open(os.path.join(cfg.data_encode, data_mode), "rb") as encode_file:
-        #     encode_data = pickle.load(encode_file)
-        #     self.list_encode_audio_data = [x[0] for x in encode_data]
-        #     self.list_encode_text_data = [x[1] for x in encode_data]
-        # self.encode_data = True
+        if teacher_encoder_model is not None and not self.teacher_encode_data:
+            self._encode_teacher_data(teacher_encoder_model)
+            self.teacher_encode_data = True
 
         if encoder_model is not None:
-            self._encode_data(encoder_model, teacher_encoder_model)
+            self._encode_data(encoder_model)
             self.encode_data = True
         
 
-    def _encode_data(self, encoder, teacher_encoder):
+    def _encode_data(self, encoder):
         logging.info("Encoding data for training...")
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         encoder.train()
@@ -112,24 +113,39 @@ class BaseDataset(Dataset):
                 .cpu()
             )
             self.list_encode_text_data.append(text_embedding)
+    
+    def _encode_teacher_data(self,teacher_encoder):
+        logging.info("Encoding teacher data for ditsilation...")
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        teacher_encoder.eval()
+        teacher_encoder.to(device)
+        for index in tqdm(range(len(self.data_list))):
+            audio_path, text, _ = self.data_list[index]
+
+            # Encode audio
+            samples = self.__paudio__(audio_path)
+            # Encode text
+            input_ids = self.__ptext__(text)
 
             # Encode teacher text
-            # teacher_text_embedding = (
-            #     teacher_encoder.encode_text(input_ids.unsqueeze(0).to(device))
-            #     .squeeze(0)
-            #     .detach()
-            #     .cpu()
-            # )
-            # self.list_teacher_encode_text_data.append(teacher_text_embedding)
+            teacher_text_embedding = (
+                teacher_encoder.encode_text(input_ids.unsqueeze(0).to(device))
+                .squeeze(0)
+                .detach()
+                .cpu()
+            )
+            self.list_teacher_encode_text_data.append(teacher_text_embedding)
             
-            # teacher_audio_embedding = (
-            #     teacher_encoder.encode_audio(samples.unsqueeze(0).to(device))
-            #     .squeeze(0)
-            #     .detach()
-            #     .cpu()
-            # )
-            # self.list_teacher_encode_audio_data.append(teacher_audio_embedding)
-        
+            teacher_audio_embedding = (
+                teacher_encoder.encode_audio(samples.unsqueeze(0).to(device))
+                .squeeze(0)
+                .detach()
+                .cpu()
+            )
+            self.list_teacher_encode_audio_data.append(teacher_audio_embedding)
+            
+        with open(os.path.join(self.data_encode, "teacher_embeddings_" + self.data_mode), 'wb') as f:
+            pickle.dump([self.list_teacher_encode_text_data, self.list_teacher_encode_audio_data], f)
         
     def __getitem__(
         self, index: int
@@ -149,12 +165,19 @@ class BaseDataset(Dataset):
         )
         label = self.__plabel__(label)
 
-        if self.data_mode != "test.pkl":
-            teacher_input_text = self.list_teacher_encode_text_data[index]
-            teacher_input_audio = self.list_teacher_encode_audio_data[index]
-            return input_text, teacher_input_text, input_audio, teacher_input_audio, label
+        teacher_input_text = (
+            self.list_teacher_encode_text_data[index]
+            if self.teacher_encode_data
+            else None
+        )
+        teacher_input_audio = (
+            self.list_teacher_encode_audio_data[index]
+            if self.teacher_encode_data
+            else None
+        )
+        return input_text, teacher_input_text, input_audio, teacher_input_audio, label
         
-        return input_text, input_audio, label
+        # return input_text, input_audio, label
 
     def __paudio__(self, file_path: int) -> torch.Tensor:
         wav_data, sr = sf.read("../" + file_path, dtype="int16")
