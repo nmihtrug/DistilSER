@@ -75,14 +75,14 @@ def main(cfg: Config):
         trainer.compile(optimizer=optimizer_transfer)
         ckpt_callback_transfer = CheckpointsCallback(
             checkpoint_dir=weight_dir,
-            save_freq=cfg.num_transer_epochs * len(train_ds_encode) * 2,
+            save_freq=cfg.num_transfer_epochs * len(train_ds_encode) * 2,
             max_to_keep=cfg.max_to_keep,
             save_best_val=True,
             save_all_states=False,
         )
         trainer.fit(
             train_ds_encode,
-            cfg.num_transer_epochs,
+            cfg.num_transfer_epochs,
             test_ds_encode,
             callbacks=[ckpt_callback_transfer],
         )
