@@ -172,9 +172,6 @@ class BaseDataset(Dataset):
         )
         label = self.__plabel__(label)
 
-        if self.data_mode == 'test.pkl':
-            return input_text, input_audio, label
-            
         teacher_input_text = (
             self.list_teacher_encode_text_data[index]
             if self.teacher_encode_data
