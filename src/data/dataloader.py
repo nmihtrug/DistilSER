@@ -48,6 +48,8 @@ class BaseDataset(Dataset):
             self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
         elif cfg.text_encoder_type == "microbert":
             self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
+        elif cfg.text_encoder_type == "picobert":
+            self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
         else:
             raise NotImplementedError(
                 "Tokenizer {} is not implemented".format(cfg.text_encoder_type)
@@ -170,7 +172,7 @@ class BaseDataset(Dataset):
         )
         label = self.__plabel__(label)
 
-        if self.data_mode == 'test.pkl':
+        if self.data_mode == 'test.pkl' or self.data_mode == 'val.pkl':
             return input_text, input_audio, label
             
         teacher_input_text = (

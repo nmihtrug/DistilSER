@@ -41,6 +41,13 @@ def build_microBert_encoder() -> nn.Module:
     microbert = DistilBertModel(config=config)
     return microbert
 
+
+def build_picoBert_encoder() -> nn.Module:
+    """A function to build picoBERT encoder"""    
+    config = DistilBertConfig(hidden_size=64, n_layers=1, n_heads=2, output_hidden_states=True)
+    picobert = DistilBertModel(config=config)
+    return picobert
+
 class VGGish(nn.Module):
     def __init__(self, postprocess):
         super(VGGish, self).__init__()
