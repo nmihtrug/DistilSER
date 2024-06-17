@@ -102,6 +102,7 @@ def build_text_encoder(type: str = "bert") -> nn.Module:
         "minibert": build_miniBert_encoder,
         "nanobert": build_nanoBert_encoder,
         "microbert": build_microBert_encoder,
+        "picobert": build_picoBert_encoder
     }
     assert type in encoders.keys(), f"Invalid text encoder type: {type}"
     return encoders[type]()
