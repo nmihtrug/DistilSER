@@ -66,7 +66,7 @@ def eval(cfg, checkpoint_path, all_state_dict=True, cm=False):
     y_pred = []
 
     for every_test_list in tqdm(test_ds):
-        input_ids, audio, label = every_test_list
+        input_ids, _, audio, _, label = every_test_list
         input_ids = input_ids.to(device)
         audio = audio.to(device)
         label = label.to(device)
@@ -123,86 +123,21 @@ def find_checkpoint_folder(path):
     return list_candidates
 
 
-def main(args):
-    logging.info("Finding checkpoints")
-    list_checkpoints = find_checkpoint_folder(args.checkpoint_path)
-    test_set = args.test_set if args.test_set is not None else "test.pkl"
-    csv_path = os.path.basename(args.checkpoint_path) + "{}.csv".format(test_set)
-    # field names
-    fields = ["BACC", "ACC", "MACRO_F1", "WEIGHTED_F1", "Time", "Model", "Settings"]
-    with open(csv_path, "a") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fields)
-        writer.writeheader()
-        for ckpt in list_checkpoints:
-            meta_info = ckpt.split("/")
-            time = meta_info[-1]
-            settings = meta_info[-2]
-            model_name = meta_info[-3]
-            logging.info("Evaluating: {}/{}/{}".format(model_name, settings, time))
-            cfg_path = os.path.join(ckpt, "cfg.log")
-            if args.latest:
-                ckpt_path = glob.glob(os.path.join(ckpt, "weights", "*.pt"))
-                if len(ckpt_path) != 0:
-                    ckpt_path = ckpt_path[0]
-                    all_state_dict = True
-                else:
-                    ckpt_path = glob.glob(os.path.join(ckpt, "weights", "*.pth"))[0]
-                    all_state_dict = False
-
-            else:
-                ckpt_path = os.path.join(ckpt, "weights/best_acc/checkpoint_0_0.pt")
-                all_state_dict = True
-                if not os.path.exists(ckpt_path):
-                    ckpt_path = os.path.join(ckpt, "weights/best_acc/checkpoint_0.pth")
-                    all_state_dict = False
-
-            cfg = Config()
-            cfg.load(cfg_path)
-            # Change to test set
-            cfg.data_valid = test_set
-            if args.data_root is not None:
-                assert (
-                    args.data_name is not None
-                ), "Change validation dataset requires data_name"
-                cfg.data_root = args.data_root
-                cfg.data_name = args.data_name
-
-            bacc, acc, macro_f1, weighted_f1 = eval(
-                cfg, ckpt_path, all_state_dict=all_state_dict, cm=args.confusion_matrix
-            )
-            writer.writerows(
-                [
-                    {
-                        "BACC": round(bacc * 100, 2),
-                        "ACC": round(acc * 100, 2),
-                        "MACRO_F1": round(macro_f1 * 100, 2),
-                        "WEIGHTED_F1": round(weighted_f1 * 100, 2),
-                        "Time": time,
-                        "Model": model_name,
-                        "Settings": settings,
-                    }
-                ]
-            )
-            logging.info(
-                "\nBACC | ACC | MACRO_F1 | WEIGHTED_F1 \n{:.2f} & {:.2f} & {:.2f} & {:.2f}".format(
-                    round(bacc * 100, 2),
-                    round(acc * 100, 2),
-                    round(macro_f1 * 100, 2),
-                    round(weighted_f1 * 100, 2),
-                )
-            )
-
-
 def arg_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-ckpt", "--checkpoint_path", type=str, help="path to checkpoint folder"
+        "-ckpt",
+        "--checkpoint_path",
+        type=str,
+        default="checkpoints_latest/student/_4M_SER_minibert_vggish/20240616-111652/weights/best_acc/checkpoint_14_62706.pt",
+        help="path to checkpoint folder",
     )
+
     parser.add_argument(
-        "-r",
-        "--recursive",
-        action="store_true",
-        help="whether to travel child folder or not",
+        "-dict",
+        "--state_dict",
+        action="store_false",
+        help="whether to use all state dict or not",
     )
 
     parser.add_argument(
@@ -216,7 +151,7 @@ def arg_parser():
         "-t",
         "--test_set",
         type=str,
-        default=None,
+        default="test.pkl",
         help="name of testing set. Ex: test.pkl",
     )
 
@@ -242,44 +177,34 @@ def arg_parser():
 
 if __name__ == "__main__":
     args = arg_parser()
-    if not args.recursive:
-        cfg_path = os.path.join(args.checkpoint_path, "cfg.log")
-        all_state_dict = True
-        ckpt_path = os.path.join(
-            args.checkpoint_path, "weights/best_acc/checkpoint_0_0.pt"
-        )
-        if not os.path.exists(ckpt_path):
-            ckpt_path = os.path.join(
-                args.checkpoint_path, "weights/best_acc/checkpoint_0.pth"
-            )
-            all_state_dict = False
+    ckpt_path = args.checkpoint_path
+    if not os.path.exists(ckpt_path):
+        print("Checkpoint path does not exist")
 
-        cfg = Config()
-        cfg.load(cfg_path)
-        # Change to test set
-        test_set = args.test_set if args.test_set is not None else "test.pkl"
-        cfg.data_valid = test_set
-        if args.data_root is not None:
-            assert (
-                args.data_name is not None
-            ), "Change validation dataset requires data_name"
-            cfg.data_root = args.data_root
-            cfg.data_name = args.data_name
+    cfg_path = os.path.join(ckpt_path[: ckpt_path.find("weights")], "cfg.log")
+    cfg = Config()
+    cfg.load(cfg_path)
+    # Change to test set
+    test_set = args.test_set if args.test_set is not None else "test.pkl"
+    cfg.data_valid = test_set
+    if args.data_root is not None:
+        assert (
+            args.data_name is not None
+        ), "Change validation dataset requires data_name"
+        cfg.data_root = args.data_root
+        cfg.data_name = args.data_name
 
-        bacc, acc, macro_f1, weighted_f1 = eval(
-            cfg,
-            ckpt_path,
-            cm=args.confusion_matrix,
-            all_state_dict=all_state_dict,
+    bacc, acc, macro_f1, weighted_f1 = eval(
+        cfg,
+        ckpt_path,
+        cm=args.confusion_matrix,
+        all_state_dict=args.state_dict,
+    )
+    logging.info(
+        "\nBACC | ACC | MACRO_F1 | WEIGHTED_F1 \n{:.2f} & {:.2f} & {:.2f} & {:.2f}".format(
+            round(bacc * 100, 2),
+            round(acc * 100, 2),
+            round(macro_f1 * 100, 2),
+            round(weighted_f1 * 100, 2),
         )
-        logging.info(
-            "\nBACC | ACC | MACRO_F1 | WEIGHTED_F1 \n{:.2f} & {:.2f} & {:.2f} & {:.2f}".format(
-                round(bacc * 100, 2),
-                round(acc * 100, 2),
-                round(macro_f1 * 100, 2),
-                round(weighted_f1 * 100, 2),
-            )
-        )
-
-    else:
-        main(args)
+    )
