@@ -25,7 +25,7 @@ class Config(BaseConfig):
         self.trainer = "Trainer" # [Trainer, DistilTrainer]
 
         self.text_encoder_type = "picobert"  # [bert, distilbert, minibert, nanobert, microbert, picobert]
-        self.text_encoder_dim = 64
+        self.text_encoder_dim = 768
         self.text_unfreeze = True
 
         self.audio_encoder_type = "vggish"
