@@ -38,17 +38,9 @@ class BaseDataset(Dataset):
         with open(os.path.join(cfg.data_root, data_mode), "rb") as train_file:
             self.data_list = pickle.load(train_file)
 
-        if cfg.text_encoder_type == "bert":
+        if cfg.text_encoder_type in ["bert", "minibert", "microbert", "nanobert", "picobert"]:
             self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
         elif cfg.text_encoder_type == "distilbert":
-            self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
-        elif cfg.text_encoder_type == "minibert":
-            self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
-        elif cfg.text_encoder_type == "nanobert":
-            self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
-        elif cfg.text_encoder_type == "microbert":
-            self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
-        elif cfg.text_encoder_type == "picobert":
             self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
         else:
             raise NotImplementedError(

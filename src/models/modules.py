@@ -16,37 +16,38 @@ def build_bert_encoder() -> nn.Module:
 
 def build_DistilBert_encoder() -> nn.Module:
     """A function to build DistilBERT encoder"""
-    config = DistilBertConfig.from_pretrained("distilbert-base-uncased", output_hidden_states=True)
+    config = DistilBertConfig.from_pretrained("distilbert-base-uncased", output_hidden_states=True, output_attentions=True)
     distilbert = DistilBertModel.from_pretrained("distilbert-base-uncased", config=config)
     return distilbert
 
 
 def build_miniBert_encoder() -> nn.Module:
     """A function to build miniBERT encoder"""    
-    config = DistilBertConfig(hidden_size=512, n_layers=4, n_heads=8, output_hidden_states=True)
-    minibert = DistilBertModel(config=config)
+    config = BertConfig.from_pretrained("bert-base-uncased", num_hidden_layers=8, output_hidden_states=True, output_attentions=True)
+    minibert = BertModel.from_pretrained("bert-base-uncased",config=config)
     return minibert
-
-
-def build_nanoBert_encoder() -> nn.Module:
-    """A function to build nanoBERT encoder"""    
-    config = DistilBertConfig(hidden_size=256, n_layers=2, n_heads=4, output_hidden_states=True)
-    nanobert = DistilBertModel(config=config)
-    return nanobert
 
 
 def build_microBert_encoder() -> nn.Module:
     """A function to build microBERT encoder"""    
-    config = DistilBertConfig(hidden_size=128, n_layers=1, n_heads=2, output_hidden_states=True)
-    microbert = DistilBertModel(config=config)
+    config = BertConfig.from_pretrained("bert-base-uncased", num_hidden_layers=6, output_hidden_states=True, output_attentions=True)
+    microbert = BertModel.from_pretrained("bert-base-uncased",config=config)
     return microbert
+
+
+def build_nanoBert_encoder() -> nn.Module:
+    """A function to build nanoBERT encoder"""    
+    config = BertConfig.from_pretrained("bert-base-uncased", num_hidden_layers=4, output_hidden_states=True, output_attentions=True)
+    nanobert = BertModel.from_pretrained("bert-base-uncased",config=config)
+    return nanobert
 
 
 def build_picoBert_encoder() -> nn.Module:
     """A function to build picoBERT encoder"""    
-    config = DistilBertConfig(hidden_size=64, n_layers=1, n_heads=2, output_hidden_states=True)
-    picobert = DistilBertModel(config=config)
+    config = BertConfig.from_pretrained("bert-base-uncased", num_hidden_layers=2, output_hidden_states=True, output_attentions=True)
+    picobert = BertModel.from_pretrained("bert-base-uncased",config=config)
     return picobert
+
 
 class VGGish(nn.Module):
     def __init__(self, postprocess):
@@ -100,8 +101,8 @@ def build_text_encoder(type: str = "bert") -> nn.Module:
         "bert": build_bert_encoder,
         "distilbert": build_DistilBert_encoder,
         "minibert": build_miniBert_encoder,
-        "nanobert": build_nanoBert_encoder,
         "microbert": build_microBert_encoder,
+        "nanobert": build_nanoBert_encoder,
         "picobert": build_picoBert_encoder
     }
     assert type in encoders.keys(), f"Invalid text encoder type: {type}"
