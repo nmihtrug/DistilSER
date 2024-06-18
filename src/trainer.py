@@ -92,6 +92,7 @@ class DistilTrainer(TorchTrainer):
         self.network = network
         self.criterion = criterion
         self.fusion_criterion = fusion_criterion
+        self.text_criterion = fusion_criterion
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.teacher.to(self.device)
         self.network.to(self.device)
@@ -121,7 +122,7 @@ class DistilTrainer(TorchTrainer):
         student_output = self.network(input_text, input_audio)
         
         # Calculate the fusion loss using MSE
-        fusion_loss = self.fusion_criterion(teacher_output[1], student_output[1])
+        fusion_loss = self.text_criterion(teacher_output[2], student_output[2])
         
         # Soften the student logits by applying softmax first and log() second
         soft_targets = torch.nn.functional.softmax(teacher_output[0] / self.T, dim=-1)
@@ -165,7 +166,7 @@ class DistilTrainer(TorchTrainer):
             student_output = self.network(input_text, input_audio)
             
             # Calculate the fusion loss using MSE
-            fusion_loss = self.fusion_criterion(teacher_output[1], student_output[1])
+            fusion_loss = self.text_criterion(teacher_output[2], student_output[2])
             
             # Soften the student logits by applying softmax first and log() second
             soft_targets = torch.nn.functional.softmax(teacher_output[0] / self.T, dim=-1)

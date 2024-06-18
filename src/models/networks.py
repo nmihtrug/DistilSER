@@ -141,8 +141,8 @@ class _4M_SER(nn.Module):
                 text_attn_output_weights,
                 fusion_attn_output_weights,
             ]
-
-        return out, cls_token_final_fusion_norm, text_norm, audio_embeddings_norm
+        # print(text_embeddings.shape, text_attention.shape, text_linear.shape, text_norm.shape)
+        return out, cls_token_final_fusion_norm, text_embeddings, audio_embeddings
 
     def encode_audio(self, audio: torch.Tensor):
         return self.audio_encoder(audio)
