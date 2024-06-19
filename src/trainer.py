@@ -166,7 +166,7 @@ class DistilTrainer(TorchTrainer):
             student_output = self.network(input_text, input_audio)
             
             # Calculate the fusion loss using MSE
-            fusion_loss = self.text_criterion(teacher_output[2], student_output[2])
+            # fusion_loss = self.text_criterion(teacher_output[2], student_output[2])
             
             # Soften the student logits by applying softmax first and log() second
             soft_targets = torch.nn.functional.softmax(teacher_output[0] / self.T, dim=-1)
@@ -177,7 +177,7 @@ class DistilTrainer(TorchTrainer):
             label_loss = self.criterion(student_output[0], label)
             
             # L(total) = (alpha)L(soft_targets) + (1-alpha)L(label) + L(fusion)
-            total_loss = self.alpha * soft_targets_loss + (1 - self.alpha) * label_loss + fusion_loss
+            total_loss = self.alpha * soft_targets_loss + (1 - self.alpha) * label_loss
             
             # Calculate accuracy
             _, preds = torch.max(student_output[0], 1)

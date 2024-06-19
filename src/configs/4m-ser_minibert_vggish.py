@@ -48,10 +48,6 @@ class Config(BaseConfig):
         
         # Teacher-student model
         self.teacher_checkpoint: str = "checkpoints_latest/_4M_SER_bert_vggish3/20240613-015337/weights/best_acc/checkpoint_206034.pth"
-        self.fusion_loss_type = "MeanSquaredError"
-        self.alpha = 0.5
-        self.T = 4
-        self.reduction = 'mean'
         
         for key, value in kwargs.items():
             setattr(self, key, value)

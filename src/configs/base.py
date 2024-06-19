@@ -200,6 +200,14 @@ class Config(BaseConfig):
         # self.lambda_c = [x / 10 for x in range(5, 21, 5)]
         # self.optim_attributes = ["lambda_c"]
 
+
+        # Teacher model
+        self.teacher_checkpoint: str = "checkpoints_latest/_4M_SER_bert_vggish3/20240613-015337/weights/best_acc/checkpoint_206034.pth"
+        self.fusion_loss_type = "MeanSquaredError"
+        self.alpha = 0.5
+        self.T = 2
+        self.reduction = 'mean'
+
         # Search for linear layer output dimension
         self.linear_layer_output: List = [64]
         self.linear_layer_last_dim: int = 64
