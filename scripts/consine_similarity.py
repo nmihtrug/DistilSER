@@ -67,7 +67,7 @@ def calc(teacher_cfg, cfg, teacher_checkpoint_path, checkpoint_path, all_state_d
             
             cos_sim.append(cosine_similarity(student_fusion_feature, teacher_fusion_feature))
 
-    with open(os.path.join(checkpoint_path[: checkpoint_path.find("weights")], f"teacher_{cfg.text_encoder_type}_cos_sim.pkl"), "wb") as f:
+    with open(os.path.join(checkpoint_path[: checkpoint_path.find("weights")], f"teacher_{cfg.text_encoder_type}_cos_sim_{cfg.data_valid}.pkl"), "wb") as f:
         pickle.dump(cos_sim, f)
     
     return cos_sim
