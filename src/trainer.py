@@ -82,7 +82,7 @@ class DistilTrainer(TorchTrainer):
         network: _4M_SER,
         criterion: torch.nn.CrossEntropyLoss = None,
         fusion_criterion: torch.nn.MSELoss = None,
-        alpha: float = 0.1,
+        alpha: float = 0.5,
         T: int = 2,
         **kwargs
     ):
@@ -147,42 +147,25 @@ class DistilTrainer(TorchTrainer):
             "acc": accuracy.detach().cpu().item(),
         }
 
+        
     def test_step(self, batch: Dict[str, Tensor]) -> Dict[str, Tensor]:
         self.network.eval()
-        self.teacher.eval()
         # Prepare batch
         input_text, teacher_input_text, input_audio, teacher_input_audio, label = batch
         
         # Move inputs to cpu or gpu
-        input_text = input_text.to(self.device)
         input_audio = input_audio.to(self.device)
         label = label.to(self.device)
-        teacher_input_text = teacher_input_text.to(self.device)
-        teacher_input_audio = teacher_input_audio.to(self.device)
-
+        input_text = input_text.to(self.device)
+        
         with torch.no_grad():
             # Forward pass
-            teacher_output = self.teacher(teacher_input_text, teacher_input_audio)
-            student_output = self.network(input_text, input_audio)
-            
-            # Calculate the fusion loss using MSE
-            # fusion_loss = self.text_criterion(teacher_output[2], student_output[2])
-            
-            # Soften the student logits by applying softmax first and log() second
-            soft_targets = torch.nn.functional.softmax(teacher_output[0] / self.T, dim=-1)
-            soft_prob = torch.nn.functional.log_softmax(student_output[0] / self.T, dim=-1)
-            # Calculate the soft targets loss. Scaled by T**2 as suggested by the authors of the paper "Distilling the knowledge in a neural network"
-            soft_targets_loss = torch.sum(soft_targets * (soft_targets.log() - soft_prob)) / soft_prob.size()[0] * (self.T**2)
-            
-            label_loss = self.criterion(student_output[0], label)
-            
-            # L(total) = (alpha)L(soft_targets) + (1-alpha)L(label) + L(fusion)
-            total_loss = self.alpha * soft_targets_loss + (1 - self.alpha) * label_loss
-            
+            output = self.network(input_text, input_audio)
+            loss = self.criterion(output[0], label)
             # Calculate accuracy
-            _, preds = torch.max(student_output[0], 1)
+            _, preds = torch.max(output[0], 1)
             accuracy = torch.mean((preds == label).float())
         return {
-            "loss": total_loss.detach().cpu().item(),
+            "loss": loss.detach().cpu().item(),
             "acc": accuracy.detach().cpu().item(),
         }
