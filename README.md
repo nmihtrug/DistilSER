@@ -1,15 +1,15 @@
 
 <h1 align="center">
-  4M-SER
+  DistilSER
   <br>
 </h1>
 
-<h4 align="center">Official code repository for paper "Comprehensive Study of Multi-Feature Embeddings and Multi-Loss Functions with Multi-Head Self-Attention Fusion for Multi-Modal Speech Emotion Recognition". Paper submitted to <a href="https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?reload=true&punumber=5165369">IEEE Transactions on Affective Computing (2024)</a> </h4>
+<h4 align="center">Official code repository for paper "Enhancing Speech Emotion Recognition through Knowledge Distillation". Paper submitted to <a href="https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?reload=true&punumber=5165369">IEEE Transactions on Affective Computing (2024)</a> </h4>
 
 <p align="center">
-<a href=""><img src="https://img.shields.io/github/stars/namphuongtran9196/4m-ser?" alt="stars"></a>
-<a href=""><img src="https://img.shields.io/github/forks/namphuongtran9196/4m-ser?" alt="forks"></a>
-<a href=""><img src="https://img.shields.io/github/license/namphuongtran9196/4m-ser?" alt="license"></a>
+<a href=""><img src="https://img.shields.io/github/stars/TrungAzieL/DistilSER?" alt="stars"></a>
+<a href=""><img src="https://img.shields.io/github/forks/TrungAzieL/DistilSER?" alt="forks"></a>
+<a href=""><img src="https://img.shields.io/github/license/TrungAzieL/DistilSER?" alt="license"></a>
 </p>
 
 <p align="center">
@@ -22,23 +22,23 @@
 </p>
 
 ## Abstract
-> In recent years, multi-modal analysis has markedly improved the performance of speech emotion recognition (SER), advancing the realms of affective computing and human-computer interaction. However, current approaches often simply concatenate features extracted from audio/speech and text inputs, neglecting effective fusion and alignment. Furthermore, most studies primarily rely on the commonly used cross-entropy loss function for classification, overlooking the potential benefits of integrating feature loss functions to enhance SER performance. In this study, we propose a two-stage framework to bolster the effectiveness and robustness of multi-modal SER. Leveraging multi-feature embeddings and multi-loss functions with multi-head self-attention fusion, our approach applies transfer learning in the initial stage to train feature fusion, while fine-tuning in the subsequent stage facilitates feature alignment. Experimental results and performance analyses on the interactive emotional dyadic motion capture (IEMOCAP) and emotional speech database (ESD) datasets reveal that employing diverse feature embeddings can yield varying performance levels, and integrating different feature loss functions can significantly improve model performance. Additionally, we conduct correlation analysis between audio/speech and text features, alongside model interpretation, to gain insights into the model's behavior.
+> Speech Emotion Recognition (SER) is becoming more and more crucial in applications including healthcare, entertainment, customer service, and human-computer interaction. However, modern SER models are often heavy and slow, making them unsuitable for real-time applications. To address this problem, we propose a technique that creates a lightweight student model through knowledge distillation. We leverage the solid performance of the 3M-SER model as the teacher in this method. While our student model keeps VGGish for audio embedding, it replaces BERT with smaller variants, such as MiniBERT, MicroBERT, NanoBERT, or PicoBERT. This approach is appropriate for real-time SER applications since it produces lighter and more effective outcomes while preserving or even enhancing performance in comparison to the traditional 3M-SER.
 
 ## How To Use
 - Clone this repository 
 ```bash
-git clone https://github.com/namphuongtran9196/4m-ser.git 
-cd 4m-ser
+git clone https://github.com/TrungAzieL/DistilSER.git 
+cd DistilSER
 ```
 - Create a conda environment and install requirements
 ```bash
-conda create -n 4m-ser python=3.8 -y
-conda activate 4m-ser
+conda create -n DistilSER python=3.10 -y
+conda activate DistilSER
 conda install pytorch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 pytorch-cuda=11.8 -c pytorch -c nvidia
 pip install -r requirements.txt
 
 - Dataset used in this project is IEMOCAP. You can download it [here](https://sail.usc.edu/iemocap/iemocap_release.htm). 
-- Preprocess data or you can download our preprocessed dataset [here](https://github.com/namphuongtran9196/4m-ser/releases) (this only include path to sample in dataset).
+- Preprocess data or you can download our preprocessed dataset [here](https://github.com/TrungAzieL/DistilSER/releases) (this only include path to sample in dataset).
 
 ```bash
 cd scripts && python preprocess.py -ds IEMOCAP --data_root ./data/IEMOCAP_full_release
@@ -47,12 +47,12 @@ cd scripts && python preprocess.py -ds IEMOCAP --data_root ./data/IEMOCAP_full_r
 - Before starting training, you need to modify the [config file](./src/configs/base.py) in the config folder. You can refer to the config file in the config folder for more details.
 
 ```bash
-cd scripts && python train.py -cfg ../src/configs/4m-ser_bert_vggish.py
+cd scripts && python train.py -cfg ../src/configs/DistilSER_bert_vggish.py
 ```
 
 - The visualization of our figure in paper can be found in [notebook](./src/visualization/metrics.ipynb).
 
-- You can also find our pre-trained models in the [release](https://github.com/namphuongtran9196/4m-ser/releases).
+- You can also find our pre-trained models in the [release](https://github.com/TrungAzieL/DistilSER/releases).
 
 ## Citation
 ```bibtex
@@ -66,4 +66,4 @@ cd scripts && python train.py -cfg ../src/configs/4m-ser_bert_vggish.py
 
 ---
 
-> GitHub [@namphuongtran9196](https://github.com/namphuongtran9196) &nbsp;&middot;&nbsp;
+> GitHub [@TrungAzieL](https://github.com/TrungAzieL) &nbsp;&middot;&nbsp;
