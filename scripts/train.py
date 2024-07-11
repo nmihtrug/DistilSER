@@ -20,6 +20,8 @@ from models import losses, networks, optims
 from utils.configs import get_options
 from utils.torch.callbacks import CheckpointsCallback
 from tqdm.auto import tqdm
+from transformers import logging as logg
+logg.set_verbosity_error()
 
 SEED = 0
 random.seed(SEED)

@@ -20,6 +20,8 @@ from models import losses, networks, optims
 from utils.configs import get_options
 from utils.torch.callbacks import CheckpointsCallback
 from tqdm.auto import tqdm
+from transformers import logging as logg
+logg.set_verbosity_error()
 
 SEED = 0
 random.seed(SEED)
@@ -37,15 +39,15 @@ def main(cfg: Config, tea_cfg: Config):
         teacher.to(device)
     except AttributeError:
         raise NotImplementedError("Teacher model {} is not implemented".format(tea_cfg.model_type))
-    
+
     # Load teacher model from checkpoint
     logging.info("Loading teacher model from checkpoint...")
     try:
-        teacher_checkpoint = torch.load(cfg.teacher_checkpoint, map_location=torch.device(device))        
+        teacher_checkpoint = torch.load(cfg.teacher_checkpoint, map_location=torch.device(device))
         teacher.load_state_dict(teacher_checkpoint)
     except Exception:
         raise ValueError("Failed to load teacher model from checkpoint {}".format(cfg.teacher_checkpoint))
-    
+
     # Student model
     logging.info("Initializing student model...")
     try:
@@ -53,7 +55,7 @@ def main(cfg: Config, tea_cfg: Config):
         student.to(device)
     except AttributeError:
         raise NotImplementedError("Student model {} is not implemented".format(cfg.model_type))
-    
+
     logging.info("Initializing checkpoint directory and dataset...")
     # Preapre the checkpoint directory
     cfg.checkpoint_dir = checkpoint_dir = os.path.join(
@@ -156,7 +158,7 @@ def main(cfg: Config, tea_cfg: Config):
 
 def arg_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-stu_cfg", "--student_config", type=str, default="../src/configs/4m-ser_distilbert_vggish.py")
+    parser.add_argument("-stu_cfg", "--student_config", type=str, default="../src/configs/4m-ser_nanobert_vggish.py")
     parser.add_argument("-tea_cfg", "--teacher_config", type=str, default="../src/configs/4m-ser_bert_vggish.py")
     return parser.parse_args()
 
@@ -165,12 +167,12 @@ if __name__ == "__main__":
     args = arg_parser()
     stu_cfg: Config = get_options(args.student_config)
     tea_cfg: Config = get_options(args.teacher_config)
-    
+
     if stu_cfg.resume and stu_cfg.cfg_path is not None:
         resume = stu_cfg.resume
         resume_path = stu_cfg.resume_path
         stu_cfg.load(stu_cfg.cfg_path)
         stu_cfg.resume = resume
         stu_cfg.resume_path = resume_path
-    
+
     main(stu_cfg, tea_cfg)
