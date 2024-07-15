@@ -44,6 +44,7 @@ def main(cfg: Config, tea_cfg: Config):
     logging.info("Loading teacher model from checkpoint...")
     try:
         teacher_checkpoint = torch.load(cfg.teacher_checkpoint, map_location=torch.device(device))
+        teacher_checkpoint = teacher_checkpoint["state_dict_network"]
         teacher.load_state_dict(teacher_checkpoint)
     except Exception:
         raise ValueError("Failed to load teacher model from checkpoint {}".format(cfg.teacher_checkpoint))
