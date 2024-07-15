@@ -159,8 +159,8 @@ def main(cfg: Config, tea_cfg: Config):
 
 def arg_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-stu_cfg", "--student_config", type=str, default="../src/configs/4m-ser_nanobert_vggish.py")
-    parser.add_argument("-tea_cfg", "--teacher_config", type=str, default="../src/configs/4m-ser_bert_vggish.py")
+    parser.add_argument("-stu_cfg", "--student_config", type=str, default="../src/configs/nanobert_vggish.py")
+    parser.add_argument("-tea_cfg", "--teacher_config", type=str, default="../src/configs/bert_vggish.py")
     return parser.parse_args()
 
 

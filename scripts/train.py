@@ -131,7 +131,7 @@ def main(cfg: Config):
 
 def arg_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-cfg", "--config", type=str, default="../src/configs/4m-ser_bert_vggish.py")
+    parser.add_argument("-cfg", "--config", type=str, default="../src/configs/bert_vggish.py")
     return parser.parse_args()
 
 

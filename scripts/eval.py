@@ -8,6 +8,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
+import time
 import csv
 import glob
 import argparse
@@ -28,7 +29,8 @@ from models import networks
 from configs.base import Config
 from collections import Counter
 from typing import Tuple
-
+from transformers import logging as logg
+logg.set_verbosity_error()
 
 def calculate_accuracy(y_true, y_pred) -> Tuple[float, float]:
     class_weights = {cls: 1.0 / count for cls, count in Counter(y_true).items()}
@@ -61,10 +63,12 @@ def eval(cfg, checkpoint_path, all_state_dict=True, cm=False):
     network.load_state_dict(weight)
     network.eval()
     network.to(device)
-
+    
     y_actu = []
     y_pred = []
 
+    st_time = time.time()
+    
     for every_test_list in tqdm(test_ds):
         input_ids, _, audio, _, label = every_test_list
         input_ids = input_ids.to(device)
@@ -75,6 +79,9 @@ def eval(cfg, checkpoint_path, all_state_dict=True, cm=False):
             _, preds = torch.max(output, 1)
             y_actu.append(label.detach().cpu().numpy()[0])
             y_pred.append(preds.detach().cpu().numpy()[0])
+
+    print("Time taken: ", time.time() - st_time)
+    
     bacc, acc = calculate_accuracy(y_actu, y_pred)
     macro_f1, weighted_f1 = calculate_f1_score(y_actu, y_pred)
     if cm:
@@ -105,22 +112,12 @@ def eval(cfg, checkpoint_path, all_state_dict=True, cm=False):
         )
         plt.tight_layout()
         plt.savefig(
-            "confusion_matrix_" + cfg.name + cfg.data_valid + ".png",
+            ckpt_path[: ckpt_path.find("weights")] + "/cm_" + cfg.name + "_" + cfg.data_valid + ".png",
             format="png",
-            dpi=1200,
+            dpi=150,
         )
 
     return bacc, acc, macro_f1, weighted_f1
-
-
-def find_checkpoint_folder(path):
-    candidate = os.listdir(path)
-    if "logs" in candidate and "weights" in candidate and "cfg.log" in candidate:
-        return [path]
-    list_candidates = []
-    for c in candidate:
-        list_candidates += find_checkpoint_folder(os.path.join(path, c))
-    return list_candidates
 
 
 def arg_parser():
@@ -130,7 +127,15 @@ def arg_parser():
         "--checkpoint_path",
         type=str,
         default="checkpoints_latest/student/_4M_SER_minibert_vggish/20240616-111652/weights/best_acc/checkpoint_14_62706.pt",
-        help="path to checkpoint folder",
+        help="path to checkpoint",
+    )
+    
+    parser.add_argument(
+        "-cfg",
+        "--config_path",
+        type=str,
+        default="checkpoints_latest/s",
+        help="path to cfg",
     )
 
     parser.add_argument(
@@ -181,9 +186,12 @@ if __name__ == "__main__":
     if not os.path.exists(ckpt_path):
         print("Checkpoint path does not exist")
 
-    cfg_path = os.path.join(ckpt_path[: ckpt_path.find("weights")], "cfg.log")
+    if args.config_path is None:
+        cfg_path = os.path.join(ckpt_path[: ckpt_path.find("weights")], "cfg.log")
+    config_path = args.config_path
+    
     cfg = Config()
-    cfg.load(cfg_path)
+    cfg.load(config_path)
     # Change to test set
     test_set = args.test_set if args.test_set is not None else "test.pkl"
     cfg.data_valid = test_set
