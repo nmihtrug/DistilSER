@@ -45,6 +45,10 @@ def main(cfg: Config, tea_cfg: Config):
     try:
         teacher_checkpoint = torch.load(cfg.teacher_checkpoint, map_location=torch.device(device))
         teacher_checkpoint = teacher_checkpoint["state_dict_network"]
+        # print(teacher_checkpoint.keys())
+        teacher_checkpoint.pop('text_encoder.embeddings.position_ids')
+        # print(teacher.state_dict().keys())
+        # break
         teacher.load_state_dict(teacher_checkpoint)
     except Exception:
         raise ValueError("Failed to load teacher model from checkpoint {}".format(cfg.teacher_checkpoint))
@@ -71,24 +75,31 @@ def main(cfg: Config, tea_cfg: Config):
     cfg.save(cfg)
 
     try:
-        criterion = getattr(losses, cfg.loss_type)(cfg)
-        criterion.to(device)
+        label_criterion = getattr(losses, cfg.label_loss_type)(cfg)
+        label_criterion.to(device)
     except AttributeError:
-        raise NotImplementedError("Loss {} is not implemented".format(cfg.loss_type))
+        raise NotImplementedError("Label loss {} is not implemented".format(cfg.label_loss_type))
 
     try:
-        fusion_criterion = getattr(losses, cfg.fusion_loss_type)(cfg)
-        fusion_criterion.to(device)
+        feature_criterion = getattr(losses, cfg.fusion_loss_type)(cfg)
+        feature_criterion.to(device)
     except AttributeError:
         raise NotImplementedError("Fusion loss {} is not implemented".format(cfg.fusion_loss_type))
+    
+    try:
+        distil_criterion = getattr(losses, cfg.distil_loss_type)(cfg)
+        distil_criterion.to(device)
+    except AttributeError:
+        raise NotImplementedError("Fusion loss {} is not implemented".format(cfg.distil_loss_type))
 
     try:
         trainer = getattr(Trainer, cfg.trainer)(
             cfg=cfg,
             teacher=teacher,
             network=student,
-            criterion=criterion,
-            fusion_criterion=fusion_criterion,
+            label_criterion=label_criterion,
+            distil_criterion=distil_criterion,
+            feature_criterion=feature_criterion,
             alpha=cfg.alpha,
             T=cfg.T,
             log_dir=cfg.checkpoint_dir,

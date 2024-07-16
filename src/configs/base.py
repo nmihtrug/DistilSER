@@ -130,9 +130,7 @@ class Config(BaseConfig):
         if self.resume:
             assert os.path.exists(str(self.resume_path)), "Resume path not found"
 
-        # [CrossEntropyLoss, CrossEntropyLoss_ContrastiveCenterLoss, CrossEntropyLoss_CenterLoss,
-        #  CombinedMarginLoss, FocalLoss,CenterLossSER,ContrastiveCenterLossSER, CrossEntropyLoss_CombinedMarginLoss]
-        self.loss_type: str = "CrossEntropyLoss"
+        self.label_loss_type: str = "CrossEntropyLoss"
 
         # lambda_total * cross-entropy loss, (1 - lambda_total) * feature_loss
         self.lambda_total = 1.0
@@ -201,13 +199,18 @@ class Config(BaseConfig):
         # self.optim_attributes = ["lambda_c"]
 
 
-        # Teacher model
+        # Knowledge Distillation
         self.teacher_checkpoint: str = "checkpoints_latest/_4M_SER_bert_vggish3/20240613-015337/weights/best_acc/checkpoint_206034.pth"
+        
         self.fusion_loss_type = "MeanSquaredError"
+        self.fusion_reduction = 'mean'
+        
+        self.distil_loss_type = "Kullback_LeiblerDivergenceLoss"
+        self.distil_reduction = "batchmean"
+        
         self.alpha = 0.5
         self.T = 2
-        self.reduction = 'mean'
-
+        
         # Search for linear layer output dimension
         self.linear_layer_output: List = [64]
         self.linear_layer_last_dim: int = 64

@@ -80,8 +80,9 @@ class DistilTrainer(TorchTrainer):
         cfg: Config,
         teacher: _4M_SER,
         network: _4M_SER,
-        criterion: torch.nn.CrossEntropyLoss = None,
-        fusion_criterion: torch.nn.MSELoss = None,
+        label_criterion: torch.nn.CrossEntropyLoss = None,
+        distil_criterion: torch.nn.KLDivLoss = None,
+        feature_criterion: torch.nn.MSELoss = None,
         alpha: float = 0.5,
         T: int = 2,
         **kwargs
@@ -90,9 +91,9 @@ class DistilTrainer(TorchTrainer):
         self.cfg = cfg
         self.teacher = teacher
         self.network = network
-        self.criterion = criterion
-        self.fusion_criterion = fusion_criterion
-        self.text_criterion = fusion_criterion
+        self.label_criterion = label_criterion
+        self.distil_criterion = distil_criterion
+        self.feature_criterion = feature_criterion
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.teacher.to(self.device)
         self.network.to(self.device)
@@ -121,19 +122,17 @@ class DistilTrainer(TorchTrainer):
             
         student_output = self.network(input_text, input_audio)
         
-        # Calculate the fusion loss using MSE
-        # fusion_loss = self.text_criterion(teacher_output[2], student_output[2])
+        # Calculate the feature loss using MSE
+        # feature_loss = self.text_criterion(teacher_output[2], student_output[2])
         
-        # Soften the student logits by applying softmax first and log() second
-        soft_targets = torch.nn.functional.softmax(teacher_output[0] / self.T, dim=-1)
-        soft_prob = torch.nn.functional.log_softmax(student_output[0] / self.T, dim=-1)
-        # Calculate the soft targets loss. Scaled by T**2 as suggested by the authors of the paper "Distilling the knowledge in a neural network"
-        soft_targets_loss = torch.sum(soft_targets * (soft_targets.log() - soft_prob)) / soft_prob.size()[0] * (self.T**2)
+        # Calculate the soft targets loss using KL divergence.
+        distil_loss = self.distil_criterion(student_output[0], teacher_output[0])
         
-        label_loss = self.criterion(student_output[0], label)
+        # Calculate the label loss using cross entropy
+        label_loss = self.label_criterion(student_output[0], label)
         
-        # L(total) = (alpha)L(soft_targets) + (1-alpha)L(label) + L(fusion)
-        total_loss = self.alpha * soft_targets_loss + (1 - self.alpha) * label_loss
+        # L(total) = (alpha)L(soft_targets) + (1-alpha)L(label)
+        total_loss = self.alpha * distil_loss + (1 - self.alpha) * label_loss
         
         # Backward pass
         total_loss.backward()

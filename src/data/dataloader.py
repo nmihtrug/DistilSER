@@ -89,7 +89,9 @@ class BaseDataset(Dataset):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         encoder.train()
         encoder.to(device)
-        for index in tqdm(range(len(self.data_list))):
+        len_data = len(self.data_list)
+        
+        for index in tqdm(range(len_data)):
             audio_path, text, _ = self.data_list[index]
 
             # Encode audio
@@ -114,11 +116,13 @@ class BaseDataset(Dataset):
     
     
     def _encode_teacher_data(self, teacher_encoder):
-        logging.info("Encoding teacher data for ditsilation...")
+        logging.info("Encoding teacher data for ditsillation...")
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         teacher_encoder.eval()
         teacher_encoder.to(device)
-        for index in tqdm(range(len(self.data_list))):
+        len_data = len(self.data_list)
+        
+        for index in tqdm(range(len_data)):
             audio_path, text, _ = self.data_list[index]
 
             # Encode audio
