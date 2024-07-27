@@ -60,6 +60,8 @@ def eval(cfg, checkpoint_path, all_state_dict=True, cm=False):
     if all_state_dict:
         weight = weight["state_dict_network"]
 
+    weight.pop('text_encoder.embeddings.position_ids')
+    
     network.load_state_dict(weight)
     network.eval()
     network.to(device)
@@ -134,7 +136,6 @@ def arg_parser():
         "-cfg",
         "--config_path",
         type=str,
-        default="checkpoints_latest/s",
         help="path to cfg",
     )
 
@@ -188,10 +189,11 @@ if __name__ == "__main__":
 
     if args.config_path is None:
         cfg_path = os.path.join(ckpt_path[: ckpt_path.find("weights")], "cfg.log")
-    config_path = args.config_path
+    else:
+        cfg_path = args.config_path
     
     cfg = Config()
-    cfg.load(config_path)
+    cfg.load(cfg_path)
     # Change to test set
     test_set = args.test_set if args.test_set is not None else "test.pkl"
     cfg.data_valid = test_set
