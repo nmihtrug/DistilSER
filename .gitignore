@@ -129,6 +129,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
+.vscode
+*.zip
 src/data/IEMOCAP_Text_and_Speech
 IEMOCAP_preprocessed
+IEMOCAP_embeddings/*
+papers
+figures/

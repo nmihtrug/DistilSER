@@ -47,8 +47,8 @@ cd scripts && python preprocess.py -ds IEMOCAP --data_root ./data/IEMOCAP_full_r
 - Before starting training, you need to modify the [config file](./src/configs/base.py) in the config folder. You can refer to the config file in the config folder for more details.
 
 ```bash
-cd scripts && python train.py -cfg ../src/configs/bert_vggish.py
-cd scripts && python train_distillation.py -stu-cfg ../src/configs/nanobert_vggish.py
+cd scripts && python train.py -cfg ../src/configs/bert_vggish.py # Train teacher model
+cd scripts && python train_distillation.py -stu_cfg ../src/configs/nanobert_vggish.py # Train student model
 ```
 
 - The visualization of our figure in paper can be found in [notebook](./src/visualization/metrics.ipynb).
