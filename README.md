@@ -48,6 +48,7 @@ cd scripts && python preprocess.py -ds IEMOCAP --data_root ./data/IEMOCAP_full_r
 
 ```bash
 cd scripts && python train.py -cfg ../src/configs/bert_vggish.py
+cd scripts && python train_distillation.py -stu-cfg ../src/configs/nanobert_vggish.py
 ```
 
 - The visualization of our figure in paper can be found in [notebook](./src/visualization/metrics.ipynb).
