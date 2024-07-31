@@ -136,3 +136,4 @@ IEMOCAP_preprocessed
 IEMOCAP_embeddings/*
 papers
 figures/
+*.pdf
