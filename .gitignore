@@ -132,8 +132,8 @@ dmypy.json
 .vscode
 *.zip
 src/data/IEMOCAP_Text_and_Speech
-IEMOCAP_preprocessed
-IEMOCAP_embeddings/*
+# IEMOCAP_preprocessed
+IEMOCAP_embeddings
 papers
 figures/
 *.pdf
