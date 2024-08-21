@@ -23,7 +23,7 @@ from tqdm.auto import tqdm
 from transformers import logging as logg
 logg.set_verbosity_error()
 
-SEED = 0
+SEED = 78
 random.seed(SEED)
 np.random.seed(SEED)
 torch.manual_seed(SEED)

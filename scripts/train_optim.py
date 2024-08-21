@@ -17,7 +17,7 @@ from train import main as train
 from configs.base import Config
 from utils.configs import get_options
 
-SEED = 0
+SEED = 78
 random.seed(SEED)
 np.random.seed(SEED)
 torch.manual_seed(SEED)

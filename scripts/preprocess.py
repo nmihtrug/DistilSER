@@ -14,7 +14,7 @@ from moviepy.editor import VideoFileClip
 from sklearn.model_selection import train_test_split
 
 
-SEED = 0
+SEED = 78
 random.seed(SEED)
 np.random.seed(SEED)
 torch.manual_seed(SEED)
@@ -126,10 +126,10 @@ def preprocess_IEMOCAP(args):
     random.Random(args.seed).shuffle(temp)
     samples, labels = zip(*temp)
     train, test_samples, train_labels, _ = train_test_split(
-        samples, labels, test_size=0.1, random_state=args.seed
+        samples, labels, test_size=0.1, random_state=args.seed, stratify=labels
     )
     train_samples, val_samples, _, _ = train_test_split(
-        train, train_labels, test_size=0.1, random_state=args.seed
+        train, train_labels, test_size=0.1, random_state=args.seed, stratify=train_labels
     )
     # Save data
     os.makedirs(args.dataset + "_preprocessed", exist_ok=True)
