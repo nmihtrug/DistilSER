@@ -247,7 +247,6 @@ class TorchTrainer(ABC, nn.Module):
 
         self.start_epoch = dict_checkpoint["epoch"]
         self.global_step = dict_checkpoint["global_step"]
-        dict_checkpoint["state_dict_network"].pop('text_encoder.embeddings.position_ids')
         self.network.load_state_dict(dict_checkpoint["state_dict_network"])
         self.optimizer.load_state_dict(dict_checkpoint["state_optimizer"])
         if self.scheduler is not None:
