@@ -185,12 +185,12 @@ def preprocess_ESD(args):
     random.Random(args.seed).shuffle(temp)
     samples, labels = zip(*temp)
     train, test_samples, train_labels, _ = train_test_split(
-        samples, labels, test_size=0.2, random_state=args.seed
+        samples, labels, test_size=0.2, random_state=args.seed, stratify=labels
     )
     train_samples, val_samples, _, _ = train_test_split(
-        train, train_labels, test_size=0.1, random_state=args.seed
+        train, train_labels, test_size=0.1, random_state=args.seed, stratify=train_labels
     )
-
+    
     # Save data
     os.makedirs(args.dataset + "_preprocessed", exist_ok=True)
     with open(os.path.join(args.dataset + "_preprocessed", "train.pkl"), "wb") as f:
