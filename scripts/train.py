@@ -100,7 +100,7 @@ def main(cfg: Config):
 
     train_ds, test_ds = build_train_test_dataset(cfg)
     logging.info("Initializing trainer...")
-
+    
     logging.info("Start training...")
     
     optimizer = optims.get_optim(cfg, network)

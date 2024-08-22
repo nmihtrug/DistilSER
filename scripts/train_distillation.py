@@ -46,7 +46,7 @@ def main(cfg: Config, tea_cfg: Config):
         teacher_checkpoint = torch.load(cfg.teacher_checkpoint, map_location=torch.device(device))
         teacher_checkpoint = teacher_checkpoint["state_dict_network"]
         # print(teacher_checkpoint.keys())
-        teacher_checkpoint.pop('text_encoder.embeddings.position_ids')
+        # teacher_checkpoint.pop('text_encoder.embeddings.position_ids')
         # print(teacher.state_dict().keys())
         # break
         teacher.load_state_dict(teacher_checkpoint)
@@ -109,6 +109,7 @@ def main(cfg: Config, tea_cfg: Config):
 
     # Teacher take encode data as input
     trainer.teacher.transfer_learning = True
+    
     if cfg.transfer_learning:
         logging.info("Transfer learning phase")
         trainer.network.transfer_learning = True
@@ -170,7 +171,7 @@ def main(cfg: Config, tea_cfg: Config):
 
 def arg_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-stu_cfg", "--student_config", type=str, default="../src/configs/nanobert_vggish.py")
+    parser.add_argument("-stu_cfg", "--student_config", type=str, default="../src/configs/microbert_vggish.py")
     parser.add_argument("-tea_cfg", "--teacher_config", type=str, default="../src/configs/bert_vggish.py")
     return parser.parse_args()
 

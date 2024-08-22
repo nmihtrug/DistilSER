@@ -123,7 +123,7 @@ class DistilTrainer(TorchTrainer):
         student_output = self.network(input_text, input_audio)
         
         # Calculate the feature loss using MSE
-        feature_loss = self.text_criterion(teacher_output[2], student_output[2])
+        feature_loss = self.feature_criterion(student_output[2], teacher_output[2])
         
         # Calculate the soft targets loss using KL divergence.
         distil_loss = self.distil_criterion(student_output[0], teacher_output[0])
