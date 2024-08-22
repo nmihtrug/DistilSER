@@ -131,7 +131,7 @@ class DistilTrainer(TorchTrainer):
         # Calculate the label loss using cross entropy
         label_loss = self.label_criterion(student_output[0], label)
         
-        # L(total) = (alpha)L(soft_targets) + (1-alpha)L(label)
+        # L(total) = (alpha)L(soft_targets) + (1-alpha)L(label) + L_feature
         total_loss = self.alpha * distil_loss + (1 - self.alpha) * label_loss + feature_loss
         
         # Backward pass
