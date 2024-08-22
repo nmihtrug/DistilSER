@@ -59,8 +59,6 @@ def eval(cfg, checkpoint_path, all_state_dict=True, cm=False):
     weight = torch.load(checkpoint_path, map_location=torch.device(device))
     if all_state_dict:
         weight = weight["state_dict_network"]
-
-    weight.pop('text_encoder.embeddings.position_ids')
     
     network.load_state_dict(weight)
     network.eval()
