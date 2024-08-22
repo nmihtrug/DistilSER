@@ -160,7 +160,7 @@ class DistilTrainer(TorchTrainer):
         with torch.no_grad():
             # Forward pass
             output = self.network(input_text, input_audio)
-            loss = self.criterion(output[0], label)
+            loss = self.label_criterion(output[0], label)
             # Calculate accuracy
             _, preds = torch.max(output[0], 1)
             accuracy = torch.mean((preds == label).float())
