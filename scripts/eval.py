@@ -111,12 +111,20 @@ def eval(cfg, checkpoint_path, all_state_dict=True, cm=False):
             ["Anger", "Happiness", "Sadness", "Neutral"], fontsize=16
         )
         plt.tight_layout()
-        plt.savefig(
-            ckpt_path[: ckpt_path.find("weights")] + "/cm_" + cfg.name + "_" + cfg.data_valid + ".png",
-            format="png",
-            dpi=150,
-        )
-
+        
+        if cfg.trainer == "Trainer":
+            plt.savefig(
+                ckpt_path[: ckpt_path.find("weights")] + "/cm_" + cfg.text_encoder_type + "_" + cfg.data_valid + ".png",
+                format="png",
+                dpi=150,
+            )
+        else:   
+            plt.savefig(
+                ckpt_path[: ckpt_path.find("weights")] + "/cm_" + cfg.text_encoder_type + "_kd_" + cfg.data_valid + ".png",
+                format="png",
+                dpi=150,
+            )
+        
     return bacc, acc, macro_f1, weighted_f1
 
 
