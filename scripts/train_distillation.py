@@ -45,10 +45,7 @@ def main(cfg: Config, tea_cfg: Config):
     try:
         teacher_checkpoint = torch.load(cfg.teacher_checkpoint, map_location=torch.device(device))
         teacher_checkpoint = teacher_checkpoint["state_dict_network"]
-        # print(teacher_checkpoint.keys())
-        # teacher_checkpoint.pop('text_encoder.embeddings.position_ids')
-        # print(teacher.state_dict().keys())
-        # break
+        teacher_checkpoint.pop("text_encoder.embeddings.position_ids")
         teacher.load_state_dict(teacher_checkpoint)
     except Exception:
         raise ValueError("Failed to load teacher model from checkpoint {}".format(cfg.teacher_checkpoint))
@@ -107,6 +104,9 @@ def main(cfg: Config, tea_cfg: Config):
     except AttributeError:
         raise NotImplementedError("Trainer {} is not implemented".format(cfg.trainer))
 
+
+    print(trainer.teacher.state_dict()['text_encoder.encoder.layer.10.attention.self.key.weight'], teacher.state_dict()['text_encoder.encoder.layer.10.attention.self.key.weight'], teacher.state_dict()['text_encoder.encoder.layer.10.attention.self.key.weight'] == trainer.teacher.state_dict()['text_encoder.encoder.layer.10.attention.self.key.weight'])
+    return
     # Teacher take encode data as input
     trainer.teacher.transfer_learning = True
     

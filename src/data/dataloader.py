@@ -116,7 +116,7 @@ class BaseDataset(Dataset):
     
     
     def _encode_teacher_data(self, teacher_encoder):
-        logging.info("Encoding teacher data for ditsillation...")
+        logging.info("Encoding teacher data for distillation...")
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         teacher_encoder.eval()
         teacher_encoder.to(device)
