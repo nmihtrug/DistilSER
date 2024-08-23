@@ -114,13 +114,13 @@ def eval(cfg, checkpoint_path, all_state_dict=True, cm=False):
         
         if cfg.trainer == "Trainer":
             plt.savefig(
-                ckpt_path[: ckpt_path.find("weights")] + "/cm_" + cfg.text_encoder_type + "_" + cfg.data_valid + ".png",
+                "confusion_matrix/cm_" + cfg.text_encoder_type + "_" + cfg.data_valid + ".png",
                 format="png",
                 dpi=150,
             )
         else:   
             plt.savefig(
-                ckpt_path[: ckpt_path.find("weights")] + "/cm_" + cfg.text_encoder_type + "_kd_" + cfg.data_valid + ".png",
+                "confusion_matrix/cm_" + cfg.text_encoder_type + "_kd_" + cfg.data_valid + ".png",
                 format="png",
                 dpi=150,
             )
