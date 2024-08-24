@@ -1,4 +1,2 @@
-*
-!.gitignore
-!*.py
-!confusion_matrix
+cosine_similarity
+checkpoints_latest
