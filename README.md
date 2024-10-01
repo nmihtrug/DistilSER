@@ -4,7 +4,7 @@
   <br>
 </h1>
 
-<h4 align="center">Official code repository for paper "Enhancing Speech Emotion Recognition through Knowledge Distillation". Paper submitted to <a href="https://ictc.org">The 15th International Conference on ICT Convergence (ICTC 2024)</a> </h4>
+<h4 align="center">Official code repository for the paper "Enhancing Speech Emotion Recognition through Knowledge Distillation". Paper accepted at <a href="https://ictc.org">The 15th International Conference on ICT Convergence (ICTC 2024)</a> </h4>
 
 <p align="center">
   <a href=""><img src="https://img.shields.io/github/stars/nmihtrug/DistilSER?" alt="stars"></a>
@@ -15,15 +15,12 @@
 <p align="center">
   <a href="#abstract">Abstract</a> •
   <a href="#how-to-use">How To Use</a> •
-  <a href="#download">Download</a> •
-  <a href="#license">License</a> •
   <a href="#citation">Citation</a> •
   <a href="#references">References</a> •
 </p>
 
 ## Abstract
-> The importance of Speech Emotion Recognition (SER) is growing in diverse applications, which has resulted in the development of multiple methodologies and models to improve SER performance. Nevertheless, modern SER models can require significant processing resources and exhibit poor performance, making them unsuitable for real-time applications.  To address this, we propose a method using knowledge distillation to generate compact, efficient student models derived from the 3M-SER architecture. Our approach replaces BERT with smaller variants like MicroBERT, NanoBERT, or PicoBERT for text embedding, while retaining VGGish for audio embedding. Our approach reduces model size by up to 44.9\% and improves inference time by up to 40.2\%. Experiments on the IEMOCAP dataset demonstrate that our proposed student models, when trained with knowledge distillation, can achieve comparable or superior accuracy to the teacher model. These results underscore the effectiveness of knowledge distillation in creating efficient and accurate SER models suitable for resource-constrained environments and real-time applications. Our work contributes to the ongoing effort to make advanced SER technology more accessible and deployable in practical settings.
-
+> The importance of Speech Emotion Recognition (SER) is growing across diverse applications, which has resulted in the development of multiple methodologies and models to improve SER performance. Nevertheless, some modern SER models require significant processing resources and exhibit poor performance, making them unsuitable for real-time applications. To address this, we propose a novel approach that leverages Knowledge Distillation (KD) to create lightweight student models derived from the 3M-SER architecture. Our method focuses on compressing the text embedding component by replacing BERT<sub>BASE</sub> with smaller variants while maintaining VGGish for audio embedding. Experiments conducted on the IEMOCAP dataset demonstrate that our student model, which reduces model size by up to 44.9%, achieves performance remarkably close to that of the teacher model while improving inference time by up to 40.2% when trained with KD. These results underscore the effectiveness of KD in creating efficient and accurate SER models suitable for resource-constrained environments and real-time applications. Our work contributes to the ongoing effort to make advanced SER technology more accessible and deployable in practical settings.
 ## How To Use
 ### Clone this repository 
 ```bash
