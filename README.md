@@ -57,7 +57,7 @@ cd scripts && python train.py -cfg ../src/configs/bert_vggish.py # Train teacher
 cd scripts && python train_distillation.py -stu_cfg ../src/configs/nanobert_vggish.py # Train student model
 ```
 
-### Evaluation and Visualization
+### Evaluation
 ```bash
 cd scripts && python eval.py -ckpt checkpoints_latest/student_kd/_4M_SER_nanobert_vggish/20240625-045938/weights/best_acc/checkpoint_58_259782.pt
 ```
