@@ -59,7 +59,7 @@ def eval(cfg, checkpoint_path, all_state_dict=True, cm=False):
     weight = torch.load(checkpoint_path, map_location=torch.device(device))
     if all_state_dict:
         weight = weight["state_dict_network"]
-    
+
     network.load_state_dict(weight)
     network.eval()
     network.to(device)
@@ -134,7 +134,7 @@ def arg_parser():
         "-ckpt",
         "--checkpoint_path",
         type=str,
-        default="checkpoints_latest/student/_4M_SER_minibert_vggish/20240616-111652/weights/best_acc/checkpoint_14_62706.pt",
+        default="/home/mihtrug/Documents/Working/DistilSER/scripts/checkpoints_latest/student_kd/_4M_SER_nanobert_vggish/20240625-045938/weights/best_acc/checkpoint_58_259782.pt",
         help="path to checkpoint",
     )
     
