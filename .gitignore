@@ -4,8 +4,11 @@ __pycache__/
 *.log
 .vscode
 *.zip
-
+.idea
 IEMOCAP_Text_and_Speech
 papers
 IEMOCAP_embeddings
 figures
+*.pdf
+*.pptx
+test.*
