@@ -38,7 +38,7 @@ pip install -r requirements.txt
 ### Download dataset and preprocess 
 
 - Dataset used in this project is IEMOCAP. You can download it [here](https://sail.usc.edu/iemocap/iemocap_release.htm). 
-- Preprocess data or you can download our preprocessed dataset [here](https://github.com/nmihtrug/DistilSER/releases) (this only include path to sample in dataset).
+- Preprocess data or you can download our preprocessed dataset [here](https://github.com/nmihtrug/DistilSER/tree/main/IEMOCAP_preprocessed) (this only include path to sample in dataset).
 
 ```bash
 cd scripts && python preprocess.py -ds IEMOCAP --data_root ./data/IEMOCAP_full_release
@@ -62,13 +62,16 @@ cd scripts && python train_distillation.py -stu_cfg ../src/configs/nanobert_vggi
 cd scripts && python eval.py -ckpt checkpoints_latest/student_kd/_4M_SER_nanobert_vggish/20240625-045938/weights/best_acc/checkpoint_58_259782.pt
 ```
 
-- The visualization of our figure in paper can be found in [notebook](./src/visualization/metrics.ipynb).
-
-- You can also find our pre-trained models in the [release](https://github.com/nmihtrug/DistilSER/releases).
-
 ## Citation
 ```bibtex
-  Update soon
+  @INPROCEEDINGS{10826904,
+  author={Nguyen, Trung Minh and Tran, Phuong-Nam and Dang, Duc Ngoc Minh},
+  booktitle={2024 15th International Conference on Information and Communication Technology Convergence (ICTC)}, 
+  title={Enhancing Speech Emotion Recognition Through Knowledge Distillation}, 
+  year={2024},
+  pages={197-202},
+  keywords={Emotion recognition;Accuracy;Speech recognition;Speech enhancement;Real-time systems;Information and communication technology;Convergence;Speech Emotion Recognition;Knowledge Distillation},
+  doi={10.1109/ICTC62082.2024.10826904}}
 ```
 ## References
 
